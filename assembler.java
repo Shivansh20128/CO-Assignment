@@ -1,3 +1,4 @@
+package com.brickBracker;
 import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.Scanner;
@@ -22,9 +23,49 @@ public class assembler {
         if (p.equals("st")) {
             return "00101";
         }
-        if (p.equals("mul")) {// not mine but wrote it
+        if (p.equals("mul")) {
             return "00110";
-        } else {
+        }
+        if (p.equals("div")) {
+            return "00111";
+        }
+        if(p.equals("rs")) {
+            return "01000";
+        }
+        if(p.equals("ls")) {
+            return "01001";
+        }
+        if (p.equals("xor")) {
+            return "01010";
+        }
+        if (p.equals("or")) {
+            return "01011";
+        }
+        if (p.equals("and")){
+            return "01100";
+        }
+        if (p.equals("not")) {
+            return "01101";
+        }
+        if (p.equals("cmp")) {
+            return "01110";
+        }
+        if (p.equals("jmp")) {
+            return "01111";
+        }
+        if (p.equals("jlt")) {
+            return "10000";
+        }
+        if (p.equals("jgt")) {
+            return "10001";
+        }
+        if (p.equals("je")) {
+            return "10010";
+        }
+        if (p.equals("hlt")) {
+            return "10011";
+        }
+        else {
             return "Error";// or whatever you want to write
         }
     }
@@ -142,6 +183,89 @@ public class assembler {
                 }
 
             }
+            else if(str.equals("mul")){
+                String str2 = scan.next();
+                String str3 = scan.next();
+                String str4 = scan.next();
+                set = instrucOpcode("mul") + "00" + registerAddress(str2) + registerAddress(str3) + registerAddress(str4);
+                System.out.println(set);
+            }
+            else if(str.equals("div")){
+                String str2 = scan.next();
+                String str3 = scan.next();
+                set = instrucOpcode("div") + "00000" + registerAddress(str2) + registerAddress(str3);
+                System.out.println(set);
+            }
+            else if(str.equals("rs")){
+                String str2 = scan.next();
+                String str3 = scan.next();
+                set = instrucOpcode("rs") + registerAddress(str2) + binaryConvImm(str3.substring(1));
+                System.out.println(set);
+            }
+            else if(str.equals("ls")){
+                String str2 = scan.next();
+                String str3 = scan.next();
+                set = instrucOpcode("ls") + registerAddress(str2) + binaryConvImm(str3.substring(1));
+                System.out.println(set);
+            }
+            else if(str.equals("xor")){
+                String str2 = scan.next();
+                String str3 = scan.next();
+                String str4 = scan.next();
+                set = instrucOpcode("xor") + "00" + registerAddress(str2) + registerAddress(str3) + registerAddress(str4);
+                System.out.println(set);
+            }
+            else if(str.equals("or")){
+                String str2 = scan.next();
+                String str3 = scan.next();
+                String str4 = scan.next();
+                set = instrucOpcode("or") + "00" + registerAddress(str2) + registerAddress(str3) + registerAddress(str4);
+                System.out.println(set);
+            }
+            else if(str.equals("and")){
+                String str2 = scan.next();
+                String str3 = scan.next();
+                String str4 = scan.next();
+                set = instrucOpcode("and") + "00" + registerAddress(str2) + registerAddress(str3) + registerAddress(str4);
+                System.out.println(set);
+            }
+            else if(str.equals("not")){
+                String str2 = scan.next();
+                String str3 = scan.next();
+                set = instrucOpcode("not") + "00000" + registerAddress(str2) + registerAddress(str3);
+                System.out.println(set);
+            }
+            else if(str.equals("cmp")){
+                String str2 = scan.next();
+                String str3 = scan.next();
+                set = instrucOpcode("cmp") + "00000" + registerAddress(str2) + registerAddress(str3);
+                System.out.println(set);
+            }
+            else if(str.equals("jmp")){
+                String str2 = scan.next();
+                set = instrucOpcode("jmp") + "000" + binaryConvImm(str2.substring(1));
+                System.out.println(set);
+            }
+            else if(str.equals("jlt")){
+                String str2 = scan.next();
+                set = instrucOpcode("jlt") + "000" + binaryConvImm(str2.substring(1));
+                System.out.println(set);
+            }
+            else if(str.equals("jgt")){
+                String str2 = scan.next();
+                set = instrucOpcode("jgt") + "000" + binaryConvImm(str2.substring(1));
+                System.out.println(set);
+            }
+            else if(str.equals("je")){
+                String str2 = scan.next();
+                set = instrucOpcode("je") + "000" + binaryConvImm(str2.substring(1));
+                System.out.println(set);
+            }
+            else if(str.equals("hlt")){
+                set = instrucOpcode("hlt") + "00000000000";
+                System.out.println(set);
+                break;
+            }
             // then check command and send it to
             // fn of that command where complete assm code is returned
 
@@ -150,6 +274,7 @@ public class assembler {
             set = set + registerAddress(str4);
             String str5 = scan.next();// will continue from here later..
             // will need to make if statement for add and sub also..
+
         }
 
     }
