@@ -160,7 +160,8 @@ public class assembler {
             return 0;
         }
     }
-
+    static int[] regValues= new int[6];
+    static String FLAG = "";
     public static void main(String[] args) {
         // variables
         String R0, R1, R2, R3, R4, R5, R6, FLAGS;// registers are 16 bit so strings..//will be used in simulator ig
@@ -176,37 +177,47 @@ public class assembler {
                 if (checkImm(str3) == 1) {
                     set = instrucOpcode("movi") + registerAddress(str2) + binaryConvImm(str3.substring(1));
                     System.out.println(set);
-
+                    regValues[Integer.parseInt(String.valueOf(str2.charAt(1)))]=Integer.parseInt(str3.substring(1));
                 } else {
                     set = instrucOpcode("movr") + registerAddress(str2) + registerAddress(str3);
                     System.out.println(set);
+                    regValues[Integer.parseInt(String.valueOf(str2.charAt(1)))]=regValues[Integer.parseInt(String.valueOf(str3.charAt(1)))];
                 }
 
             }
+
             else if(str.equals("mul")){
                 String str2 = scan.next();
                 String str3 = scan.next();
                 String str4 = scan.next();
                 set = instrucOpcode("mul") + "00" + registerAddress(str2) + registerAddress(str3) + registerAddress(str4);
                 System.out.println(set);
+                regValues[Integer.parseInt(String.valueOf(str2.charAt(1)))]=regValues[Integer.parseInt(String.valueOf(str3.charAt(1)))]*regValues[Integer.parseInt(String.valueOf(str4.charAt(1)))];
             }
             else if(str.equals("div")){
                 String str2 = scan.next();
                 String str3 = scan.next();
                 set = instrucOpcode("div") + "00000" + registerAddress(str2) + registerAddress(str3);
                 System.out.println(set);
+                regValues[0]=regValues[Integer.parseInt(String.valueOf(str2.charAt(1)))]/regValues[Integer.parseInt(String.valueOf(str3.charAt(1)))];
+                regValues[1]=regValues[Integer.parseInt(String.valueOf(str2.charAt(1)))]%regValues[Integer.parseInt(String.valueOf(str3.charAt(1)))];
+
             }
             else if(str.equals("rs")){
                 String str2 = scan.next();
                 String str3 = scan.next();
                 set = instrucOpcode("rs") + registerAddress(str2) + binaryConvImm(str3.substring(1));
                 System.out.println(set);
+                regValues[Integer.parseInt(String.valueOf(str2.charAt(1)))]= (int) (regValues[Integer.parseInt(String.valueOf(str2.charAt(1)))]/Math.pow(2,Integer.parseInt(str3.substring(1))));
+
             }
             else if(str.equals("ls")){
                 String str2 = scan.next();
                 String str3 = scan.next();
                 set = instrucOpcode("ls") + registerAddress(str2) + binaryConvImm(str3.substring(1));
                 System.out.println(set);
+                regValues[Integer.parseInt(String.valueOf(str2.charAt(1)))]= (int) (regValues[Integer.parseInt(String.valueOf(str2.charAt(1)))]*Math.pow(2,Integer.parseInt(str3.substring(1))));
+
             }
             else if(str.equals("xor")){
                 String str2 = scan.next();
@@ -214,6 +225,8 @@ public class assembler {
                 String str4 = scan.next();
                 set = instrucOpcode("xor") + "00" + registerAddress(str2) + registerAddress(str3) + registerAddress(str4);
                 System.out.println(set);
+                regValues[Integer.parseInt(String.valueOf(str2.charAt(1)))]= regValues[Integer.parseInt(String.valueOf(str3.charAt(1)))]^regValues[Integer.parseInt(String.valueOf(str4.charAt(1)))];
+
             }
             else if(str.equals("or")){
                 String str2 = scan.next();
@@ -221,6 +234,7 @@ public class assembler {
                 String str4 = scan.next();
                 set = instrucOpcode("or") + "00" + registerAddress(str2) + registerAddress(str3) + registerAddress(str4);
                 System.out.println(set);
+                regValues[Integer.parseInt(String.valueOf(str2.charAt(1)))]= regValues[Integer.parseInt(String.valueOf(str3.charAt(1)))]|regValues[Integer.parseInt(String.valueOf(str4.charAt(1)))];
             }
             else if(str.equals("and")){
                 String str2 = scan.next();
@@ -228,23 +242,36 @@ public class assembler {
                 String str4 = scan.next();
                 set = instrucOpcode("and") + "00" + registerAddress(str2) + registerAddress(str3) + registerAddress(str4);
                 System.out.println(set);
+                regValues[Integer.parseInt(String.valueOf(str2.charAt(1)))]= regValues[Integer.parseInt(String.valueOf(str3.charAt(1)))]&regValues[Integer.parseInt(String.valueOf(str4.charAt(1)))];
             }
             else if(str.equals("not")){
                 String str2 = scan.next();
                 String str3 = scan.next();
                 set = instrucOpcode("not") + "00000" + registerAddress(str2) + registerAddress(str3);
                 System.out.println(set);
+                regValues[Integer.parseInt(String.valueOf(str2.charAt(1)))]= ~regValues[Integer.parseInt(String.valueOf(str3.charAt(1)))];
             }
             else if(str.equals("cmp")){
                 String str2 = scan.next();
                 String str3 = scan.next();
                 set = instrucOpcode("cmp") + "00000" + registerAddress(str2) + registerAddress(str3);
                 System.out.println(set);
+                if(Integer.parseInt(str2.substring(1))<Integer.parseInt(str3.substring(1))){
+                    FLAG = "L";
+                }
+                else if(Integer.parseInt(str2.substring(1))==Integer.parseInt(str3.substring(1))){
+                    FLAG = "E";
+                }
+                else if(Integer.parseInt(str2.substring(1))>Integer.parseInt(str3.substring(1))){
+                    FLAG = "G";
+                }
+
             }
             else if(str.equals("jmp")){
                 String str2 = scan.next();
                 set = instrucOpcode("jmp") + "000" + binaryConvImm(str2.substring(1));
                 System.out.println(set);
+
             }
             else if(str.equals("jlt")){
                 String str2 = scan.next();
@@ -266,14 +293,22 @@ public class assembler {
                 System.out.println(set);
                 break;
             }
+            System.out.println(regValues[0]);
+            System.out.println(regValues[1]);
+            System.out.println(regValues[2]);
+            System.out.println(regValues[3]);
+            System.out.println(regValues[4]);
+            System.out.println(regValues[5]);
+            System.out.println(regValues[6]);
+            System.out.println(FLAG);
             // then check command and send it to
             // fn of that command where complete assm code is returned
 
-            set = instrucOpcode(str);
-            String str4 = scan.next();
-            set = set + registerAddress(str4);
-            String str5 = scan.next();// will continue from here later..
-            // will need to make if statement for add and sub also..
+//            set = instrucOpcode(str);
+//            String str4 = scan.next();
+//            set = set + registerAddress(str4);
+//            String str5 = scan.next();// will continue from here later..
+//            // will need to make if statement for add and sub also..
 
         }
 
