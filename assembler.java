@@ -159,6 +159,8 @@ public class assembler {
 
             }
             if (str.equals("hlt")) {
+                set = "1001100000000000";
+                System.out.println(set);
                 break;
             }
             // then check command and send it to
