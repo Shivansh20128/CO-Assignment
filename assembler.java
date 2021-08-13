@@ -127,7 +127,7 @@ public class assembler {
         // for hault basically do exit
         while (true) {
             String set = "";// complete assemply coded string
-            String str = scan.next();
+            String str = scan.next();// basically str is to exit
 
             if (str.equals("mov")) {// mov wale completed
                 String str2 = scan.next();
@@ -142,13 +142,32 @@ public class assembler {
                 }
 
             }
+            if (str.equals("add") || str.equals("sub")) {// mov wale completed
+                String str2 = scan.next();
+                String str3 = scan.next();
+                String str4 = scan.next();
+                set = instrucOpcode(str) + registerAddress(str2) + registerAddress(str3) + registerAddress(str4);
+                System.out.println(set);
+
+            }
+            if (str.equals("ld") || str.equals("st")) {// mov wale completed
+                String str2 = scan.next();
+                String str3 = scan.next();// this is mem addr this time
+                // String str4 = scan.next();
+                set = instrucOpcode(str) + registerAddress(str2) + registerAddress(str3);
+                System.out.println(set);
+
+            }
+            if (str.equals("hlt")) {
+                break;
+            }
             // then check command and send it to
             // fn of that command where complete assm code is returned
 
-            set = instrucOpcode(str);
-            String str4 = scan.next();
-            set = set + registerAddress(str4);
-            String str5 = scan.next();// will continue from here later..
+            // set = instrucOpcode(str);
+            // String str4 = scan.next();
+            // set = set + registerAddress(str4);
+            // String str5 = scan.next();// will continue from here later..
             // will need to make if statement for add and sub also..
         }
 
