@@ -171,6 +171,7 @@ public class assembler {
             // set = set + registerAddress(str4);
             // String str5 = scan.next();// will continue from here later..
             // will need to make if statement for add and sub also..
+            //testing sshkey pair
         }
 
     }
