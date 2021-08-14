@@ -1,3 +1,4 @@
+
 //package com.brickBracker;
 import java.lang.reflect.Array;
 import java.util.*;
@@ -30,10 +31,10 @@ public class JustNew {
         if (p.equals("div")) {
             return "00111";
         }
-        if(p.equals("rs")) {
+        if (p.equals("rs")) {
             return "01000";
         }
-        if(p.equals("ls")) {
+        if (p.equals("ls")) {
             return "01001";
         }
         if (p.equals("xor")) {
@@ -42,7 +43,7 @@ public class JustNew {
         if (p.equals("or")) {
             return "01011";
         }
-        if (p.equals("and")){
+        if (p.equals("and")) {
             return "01100";
         }
         if (p.equals("not")) {
@@ -65,8 +66,7 @@ public class JustNew {
         }
         if (p.equals("hlt")) {
             return "10011";
-        }
-        else {
+        } else {
             return "Error";// or whatever you want to write
         }
     }
@@ -96,39 +96,40 @@ public class JustNew {
         if (s.equals("FLAGS")) {
             return "111";
         } else {
-            return "-1"; // generate error and exit 
+            return "-1"; // generate error and exit
         }
 
     }
-    /** converts immediate to binary then returns it as string 
-    throws a NumberFormatException if the string cannot be converted to an int type
-    should catch the error, print the address no. and exit the code !!
-    */
-    static String binaryConvImm(String st) { 
+
+    /**
+     * converts immediate to binary then returns it as string throws a
+     * NumberFormatException if the string cannot be converted to an int type should
+     * catch the error, print the address no. and exit the code !!
+     */
+    static String binaryConvImm(String st) {
         int n = Integer.parseInt(st);
         return Int_to_Bin(n);
     }
 
-    static String Int_to_Bin(int num){
+    static String Int_to_Bin(int num) {
         if (num > 255) {
-            return "-1"; //generate error and exit code
+            return "-1"; // generate error and exit code
         }
         String p = "";
         int binary[] = new int[8];
         int index = 0;
-        while(num > 0){
-            binary[index++] = num%2;
-            num = num/2;
+        while (num > 0) {
+            binary[index++] = num % 2;
+            num = num / 2;
         }
-        for(int i = index-1;i >= 0;i--){
+        for (int i = index - 1; i >= 0; i--) {
             p = p + Integer.toString(binary[i]);
         }
-        for(int j=index; j <= 7; j++){
+        for (int j = index; j <= 7; j++) {
             p = "0" + p;
         }
         return p;
     }
-    
 
     static void printarr(int[] a) {// just to print array asap for verification;
         for (int i = 0; i < a.length; i++) {
@@ -143,125 +144,122 @@ public class JustNew {
             return 0;
         }
     }
-    static int[] regValues= new int[6];
+
+    static int[] regValues = new int[6];
     static String FLAG = "";
 
     public static void main(String[] args) {
         boolean Error_flag = false;
-        //hashmap for storing label-address pair in jump instructions
-        //synchronizing the hashmap
-        //Map myhash = Collections.synchronizedMap(hashMap);
+        // hashmap for storing label-address pair in jump instructions
+        // synchronizing the hashmap
+        // Map myhash = Collections.synchronizedMap(hashMap);
         HashMap<String, Integer> labels = new HashMap<String, Integer>();
 
-        //array list of initially incomplete jump instructions
+        // array list of initially incomplete jump instructions
         ArrayList<Integer> incomp = new ArrayList<Integer>();
 
-        //array or array list for storing binaries of each instruction
+        // array or array list for storing binaries of each instruction
         // at indexes corresponding to address no.s in memory
-        //need to check instructions dont exceed 256
-        //initialise a counter in instrucOpcode?
+        // need to check instructions dont exceed 256
+        // initialise a counter in instrucOpcode?
         ArrayList<String> instr_bin = new ArrayList<String>();
-        //String instr_bin[] = new String[256]; 
-        //easier to add variables in arraylist after hlt 
+        // String instr_bin[] = new String[256];
+        // easier to add variables in arraylist after hlt
 
-        //for storing variables in order
+        // for storing variables in order
         ArrayList<String> vars_inorder = new ArrayList<String>();
 
         String R0, R1, R2, R3, R4, R5, R6, FLAGS;// registers are 16 bit so strings..//will be used in simulator ig
         String specialCharacters = " !#$%&'()*+,-./:;<=>?@[]^`{|}";
-        
+
         Scanner scan = new Scanner(System.in);
         // for hault do exit
-        //need to check instructions dont exceed 256!
+        // need to check instructions dont exceed 256!
         while (true) {
             String set = "";// complete assemply coded string
             String str = scan.next();
             // variables
-            
-            if(str.equals("var")){
-                //var shoukd only be there if instr_bin.size() = 0
-                //else exit code
-                if(instr_bin.size() != 0){
+
+            if (str.equals("var")) {
+                // var shoukd only be there if instr_bin.size() = 0
+                // else exit code
+                if (instr_bin.size() != 0) {
                     Error_flag = true;
-                    //also print the line of code where error occurs
+                    // also print the line of code where error occurs
                     System.out.println("ERROR: variable declared in the middle of the program");
                     break;
                 }
                 String variable = scan.next();
-                
-                //variable name should be valid
+
+                // variable name should be valid
                 boolean invalid_var = false;
-            
-                for(int i=0; i< specialCharacters.length() ; i++){
-                        
-                    //Checking if the input string contain any of the specified Characters
-                    if(variable.contains(Character.toString(specialCharacters.charAt(i)))){
+
+                for (int i = 0; i < specialCharacters.length(); i++) {
+
+                    // Checking if the input string contain any of the specified Characters
+                    if (variable.contains(Character.toString(specialCharacters.charAt(i)))) {
                         invalid_var = true;
-                        //also print the line number where error occured
+                        // also print the line number where error occured
                         System.out.println("ERROR: Invalid vaiable name ");
                         break;
                     }
                 }
-                //exit code
-                if(invalid_var){
+                // exit code
+                if (invalid_var) {
                     Error_flag = true;
                     break;
-                }
-                else if(!invalid_var){
-                    //put the variable in the hashmap, set address no. to -1
-                    //after hlt instruction, address no. of 1st var = instr_bin.size() + 1
-                    labels.put(variable,-1);
-                    //add it to vars_inorder
+                } else if (!invalid_var) {
+                    // put the variable in the hashmap, set address no. to -1
+                    // after hlt instruction, address no. of 1st var = instr_bin.size() + 1
+                    labels.put(variable, -1);
+                    // add it to vars_inorder
                     vars_inorder.add(variable);
 
                 }
-                continue; 
+                continue;
             }
 
-            //handle instr starting with "<label_name>:"
-            //label_name should be valid; alphanumerics and underscores!
-            //shouldnt contain spaces or other special chars
-            if(str.charAt(str.length() - 1) == ':'){
-                
-		
-                boolean invalid_label = false;
-                String label_name = str.substring(0,str.length()-1);
+            // handle instr starting with "<label_name>:"
+            // label_name should be valid; alphanumerics and underscores!
+            // shouldnt contain spaces or other special chars
+            if (str.charAt(str.length() - 1) == ':') {
 
-                //System.out.println(label_name);
-            
-                for(int i=0; i< specialCharacters.length() ; i++){
-                        
-                    //Checking if the input string contain any of the specified Characters
-                    if(label_name.contains(Character.toString(specialCharacters.charAt(i)))){
+                boolean invalid_label = false;
+                String label_name = str.substring(0, str.length() - 1);
+
+                // System.out.println(label_name);
+
+                for (int i = 0; i < specialCharacters.length(); i++) {
+
+                    // Checking if the input string contain any of the specified Characters
+                    if (label_name.contains(Character.toString(specialCharacters.charAt(i)))) {
                         invalid_label = true;
-                        //also print the line number where error occured
+                        // also print the line number where error occured
                         System.out.println("ERROR: Invalid Label name ");
                         break;
                     }
                 }
-                //exit code
-                if(invalid_label){
+                // exit code
+                if (invalid_label) {
                     Error_flag = true;
                     break;
                 }
-                if(!invalid_label){
-                    //add to hashmap with value as its address no. 
-                    if(labels.get(label_name) == null){
+                if (!invalid_label) {
+                    // add to hashmap with value as its address no.
+                    if (labels.get(label_name) == null) {
                         labels.put(label_name, instr_bin.size());
 
-                        //System.out.println("goes null");
-                    }
-                    else{
+                        // System.out.println("goes null");
+                    } else {
                         labels.replace(label_name, instr_bin.size());
-                        //System.out.println("not null");
+                        // System.out.println("not null");
                     }
-                    
+
                     // read the instruction ahead and convert to binary
                     continue;
                 }
             }
 
-            
             if (str.equals("mov")) {// mov wale completed
                 String str2 = scan.next();
                 String str3 = scan.next();
@@ -284,13 +282,12 @@ public class JustNew {
                 instr_bin.add(set);
                 continue;
 
-            }
-            else if (str.equals("ld") || str.equals("st")) {// mov wale completed
+            } else if (str.equals("ld") || str.equals("st")) {// mov wale completed
                 String str2 = scan.next();
-                String str3 = scan.next();// this is mem addr/ variable 
-                
-                //incomplete instr stored in instr_bin
-                //will be completed after halt
+                String str3 = scan.next();// this is mem addr/ variable
+
+                // incomplete instr stored in instr_bin
+                // will be completed after halt
                 set = instrucOpcode(str) + registerAddress(str2);
                 instr_bin.add(set + " " + str3);
                 incomp.add(instr_bin.indexOf(set + " " + str3));
@@ -298,196 +295,186 @@ public class JustNew {
 
             }
 
-            else if(str.equals("mul")){
+            else if (str.equals("mul")) {
                 String str2 = scan.next();
                 String str3 = scan.next();
                 String str4 = scan.next();
-                set = instrucOpcode("mul") + "00" + registerAddress(str2) + registerAddress(str3) + registerAddress(str4);
+                set = instrucOpcode("mul") + "00" + registerAddress(str2) + registerAddress(str3)
+                        + registerAddress(str4);
                 instr_bin.add(set);
                 continue;
-              
-            }
-            else if(str.equals("div")){
+
+            } else if (str.equals("div")) {
                 String str2 = scan.next();
                 String str3 = scan.next();
                 set = instrucOpcode("div") + "00000" + registerAddress(str2) + registerAddress(str3);
                 instr_bin.add(set);
                 continue;
-            }
-            else if(str.equals("rs")){
+            } else if (str.equals("rs")) {
                 String str2 = scan.next();
                 String str3 = scan.next();
                 set = instrucOpcode("rs") + registerAddress(str2) + binaryConvImm(str3.substring(1));
                 instr_bin.add(set);
                 continue;
-            }
-            else if(str.equals("ls")){
+            } else if (str.equals("ls")) {
                 String str2 = scan.next();
                 String str3 = scan.next();
                 set = instrucOpcode("ls") + registerAddress(str2) + binaryConvImm(str3.substring(1));
                 instr_bin.add(set);
                 continue;
-            }
-            else if(str.equals("xor")){
+            } else if (str.equals("xor")) {
                 String str2 = scan.next();
                 String str3 = scan.next();
                 String str4 = scan.next();
-                set = instrucOpcode("xor") + "00" + registerAddress(str2) + registerAddress(str3) + registerAddress(str4);
+                set = instrucOpcode("xor") + "00" + registerAddress(str2) + registerAddress(str3)
+                        + registerAddress(str4);
                 instr_bin.add(set);
                 continue;
-            }
-            else if(str.equals("or")){
+            } else if (str.equals("or")) {
                 String str2 = scan.next();
                 String str3 = scan.next();
                 String str4 = scan.next();
-                set = instrucOpcode("or") + "00" + registerAddress(str2) + registerAddress(str3) + registerAddress(str4);
+                set = instrucOpcode("or") + "00" + registerAddress(str2) + registerAddress(str3)
+                        + registerAddress(str4);
                 instr_bin.add(set);
                 continue;
-                
-            }
-            else if(str.equals("and")){
+
+            } else if (str.equals("and")) {
                 String str2 = scan.next();
                 String str3 = scan.next();
                 String str4 = scan.next();
-                set = instrucOpcode("and") + "00" + registerAddress(str2) + registerAddress(str3) + registerAddress(str4);
+                set = instrucOpcode("and") + "00" + registerAddress(str2) + registerAddress(str3)
+                        + registerAddress(str4);
                 instr_bin.add(set);
                 continue;
-                
-            }
-            else if(str.equals("not")){
+
+            } else if (str.equals("not")) {
                 String str2 = scan.next();
                 String str3 = scan.next();
                 set = instrucOpcode("not") + "00000" + registerAddress(str2) + registerAddress(str3);
                 instr_bin.add(set);
                 continue;
-            }
-            else if(str.equals("cmp")){
+            } else if (str.equals("cmp")) {
                 String str2 = scan.next();
                 String str3 = scan.next();
                 set = instrucOpcode("cmp") + "00000" + registerAddress(str2) + registerAddress(str3);
                 instr_bin.add(set);
-                if(Integer.parseInt(str2.substring(1))<Integer.parseInt(str3.substring(1))){
+                if (Integer.parseInt(str2.substring(1)) < Integer.parseInt(str3.substring(1))) {
                     FLAG = "L";
-                }
-                else if(Integer.parseInt(str2.substring(1))==Integer.parseInt(str3.substring(1))){
+                } else if (Integer.parseInt(str2.substring(1)) == Integer.parseInt(str3.substring(1))) {
                     FLAG = "E";
-                }
-                else if(Integer.parseInt(str2.substring(1))>Integer.parseInt(str3.substring(1))){
+                } else if (Integer.parseInt(str2.substring(1)) > Integer.parseInt(str3.substring(1))) {
                     FLAG = "G";
                 }
                 continue;
 
             }
-            
-            //must reset FLAGS reg after every instruction
 
-            //jmp label_name
-            else if(str.equals("jmp")){
+            // must reset FLAGS reg after every instruction
+
+            // jmp label_name
+            else if (str.equals("jmp")) {
                 String str2 = scan.next();
-                //if the label hasnt come before the jmp instr
+                // if the label hasnt come before the jmp instr
                 // i.e the label is not in hashmap
-                if(labels.get(str2) == null){
-                    labels.put(str2,-1); //add the label to map
-                    //write the instruc just containing the opcode and unused bits
+                if (labels.get(str2) == null) {
+                    labels.put(str2, -1); // add the label to map
+                    // write the instruc just containing the opcode and unused bits
                     // white space + label_name: in the bin array
                     set = instrucOpcode("jmp") + "000";
                     instr_bin.add(set + " " + str2);
-                    //store this index in incomp array
+                    // store this index in incomp array
                     incomp.add(instr_bin.indexOf(set + " " + str2));
                 }
 
-                //label was encountered before the jmp instr
-                //label is in hashmap, value is not -1
-                //its value stores the address no.
-                if(labels.get(str2) != -1){
+                // label was encountered before the jmp instr
+                // label is in hashmap, value is not -1
+                // its value stores the address no.
+                if (labels.get(str2) != -1) {
                     set = instrucOpcode("jmp") + "000" + Int_to_Bin(labels.get(str2));
                     instr_bin.add(set);
                 }
                 continue;
             }
 
-            //jlt label_name
-            else if(str.equals("jlt")){
+            // jlt label_name
+            else if (str.equals("jlt")) {
                 String str2 = scan.next();
-                if(labels.get(str2) == null){
-                    labels.put(str2,-1);
+                if (labels.get(str2) == null) {
+                    labels.put(str2, -1);
                     set = instrucOpcode("jlt") + "000";
                     instr_bin.add(set + " " + str2);
                     incomp.add(instr_bin.indexOf(set + " " + str2));
                 }
-                if(labels.get(str2) != -1){
+                if (labels.get(str2) != -1) {
                     set = instrucOpcode("jlt") + "000" + Int_to_Bin(labels.get(str2));
                     instr_bin.add(set);
                 }
                 continue;
             }
 
-            else if(str.equals("jgt")){
+            else if (str.equals("jgt")) {
                 String str2 = scan.next();
-                if(labels.get(str2) == null){
-                    labels.put(str2,-1);
+                if (labels.get(str2) == null) {
+                    labels.put(str2, -1);
                     set = instrucOpcode("jgt") + "000";
                     instr_bin.add(set + " " + str2);
                     incomp.add(instr_bin.indexOf(set + " " + str2));
                 }
-                if(labels.get(str2) != -1){
+                if (labels.get(str2) != -1) {
                     set = instrucOpcode("jgt") + "000" + Int_to_Bin(labels.get(str2));
                     instr_bin.add(set);
                 }
                 continue;
-            }
-            else if(str.equals("je")){
+            } else if (str.equals("je")) {
                 String str2 = scan.next();
-                if(labels.get(str2) == null){
-                    labels.put(str2,-1);
+                if (labels.get(str2) == null) {
+                    labels.put(str2, -1);
                     set = instrucOpcode("je") + "000";
                     instr_bin.add(set + " " + str2);
                     incomp.add(instr_bin.indexOf(set + " " + str2));
                 }
-                if(labels.get(str2) != -1){
+                if (labels.get(str2) != -1) {
                     set = instrucOpcode("je") + "000" + Int_to_Bin(labels.get(str2));
                     instr_bin.add(set);
                 }
                 continue;
-            }
-            else if(str.equals("hlt")){
+            } else if (str.equals("hlt")) {
                 set = instrucOpcode("hlt") + "00000000000";
                 instr_bin.add(set);
-                //instr_bin.add(set);
+                // instr_bin.add(set);
                 break;
-            }
-            else{
+            } else {
                 System.out.println("ERROR: Invalid instruction");
                 Error_flag = true;
                 break;
             }
         }
 
-        if(!Error_flag){
-            //setting address no.s of variables
-            for(String vars : vars_inorder){
+        if (!Error_flag) {
+            // setting address no.s of variables
+            for (String vars : vars_inorder) {
                 labels.replace(vars, instr_bin.size() + vars_inorder.indexOf(vars));
             }
 
             String[] arrOfStr;
             String incomp_instr;
-            String comp_instr; //complete instruction
-            if (incomp.size() != 0){
-                for(int item : incomp){
+            String comp_instr; // complete instruction
+            if (incomp.size() != 0) {
+                for (int item : incomp) {
                     incomp_instr = instr_bin.get(item);
-                    arrOfStr = incomp_instr.split(" ",2);
+                    arrOfStr = incomp_instr.split(" ", 2);
                     comp_instr = arrOfStr[0] + Int_to_Bin(labels.get(arrOfStr[1]));
-                    instr_bin.set(item,comp_instr);
-                        
+                    instr_bin.set(item, comp_instr);
+
                 }
 
-                for(String binary : instr_bin){
+                for (String binary : instr_bin) {
                     System.out.println(binary);
                 }
-                
-            }
-            else if(incomp.size() == 0){
-                for(String binary : instr_bin){
+
+            } else if (incomp.size() == 0) {
+                for (String binary : instr_bin) {
                     System.out.println(binary);
                 }
             }
