@@ -100,89 +100,14 @@ public class JustNew {
         }
 
     }
-
-    
-    /*
-    static int[] fill(int[] n, int arrIndex, int num) {// array index should be size of arr
-        if (num == 1) { // converts decimal to binary
-            n[arrIndex] = 1;
-            return n;
-        } 
-        else {
-            int q = num / 2;
-            int r = num % 2;
-            num = q;
-            n[arrIndex] = r;
-            arrIndex = arrIndex - 1; //error: index -1 out of bounds for length 8 
-            return fill(n, arrIndex, num);
-        }
-
-    }
-    */
-
-    /*
-    static String binaryConv(String st) { // return string for binary representation
-        int n = Integer.parseInt(st);
-        int[] bin = new int[16];
-
-        if (n > 65536) {
-            return "-1";
-        } else {
-            int[] m = fill(bin, 15, n);
-            String p = "";
-            for (int i = 0; i < m.length; i++) {
-                p = p + Integer.toString(m[i]);
-            }
-            return p;
-        }
-    }
-    */
-
     /** converts immediate to binary then returns it as string 
     throws a NumberFormatException if the string cannot be converted to an int type
     should catch the error, print the address no. and exit the code !!
     */
-    
     static String binaryConvImm(String st) { 
         int n = Integer.parseInt(st);
         return Int_to_Bin(n);
     }
-
-    /*
-    static String Int_to_Bin(int n) { 
-        
-
-        if (n > 255) {
-            return "-1"; //generate error and exit code
-        } else {
-            String binry = Integer.toBinaryString(n);
-            int x = 8 - binry.length();
-            String p = "0";
-            String m;
-		    String repeated = new String(new char[x]).replace("\0", p);
-            m = p + binry;
-            return m;
-        }
-    }
-    */
-    
-    /*
-    static String Int_to_Bin(int n) { 
-        
-        int[] bin = new int[8];
-
-        if (n > 255) {
-            return "-1"; //generate error and exit code
-        } else {
-            int[] m = fill(bin, 7, n);
-            String p = "";
-            for (int i = 0; i < m.length; i++) {
-                p = p + Integer.toString(m[i]);
-            }
-            return p;
-        }
-    }
-    */
 
     static String Int_to_Bin(int num){
         if (num > 255) {
@@ -197,7 +122,6 @@ public class JustNew {
         }
         for(int i = index-1;i >= 0;i--){
             p = p + Integer.toString(binary[i]);
-            //System.out.print(binary[i]);
         }
         for(int j=index; j <= 7; j++){
             p = "0" + p;
@@ -291,9 +215,7 @@ public class JustNew {
                     vars_inorder.add(variable);
 
                 }
-                continue;
-
-                
+                continue; 
             }
 
             //handle instr starting with "<label_name>:"
@@ -346,11 +268,9 @@ public class JustNew {
                 if (checkImm(str3) == 1) {
                     set = instrucOpcode("movi") + registerAddress(str2) + binaryConvImm(str3.substring(1));
                     instr_bin.add(set);
-                    //regValues[Integer.parseInt(String.valueOf(str2.charAt(1)))]=Integer.parseInt(str3.substring(1));
                 } else {
                     set = instrucOpcode("movr") + registerAddress(str2) + registerAddress(str3);
                     instr_bin.add(set);
-                    //regValues[Integer.parseInt(String.valueOf(str2.charAt(1)))]=regValues[Integer.parseInt(String.valueOf(str3.charAt(1)))];
                 }
                 continue;
 
@@ -385,7 +305,7 @@ public class JustNew {
                 set = instrucOpcode("mul") + "00" + registerAddress(str2) + registerAddress(str3) + registerAddress(str4);
                 instr_bin.add(set);
                 continue;
-                //regValues[Integer.parseInt(String.valueOf(str2.charAt(1)))]=regValues[Integer.parseInt(String.valueOf(str3.charAt(1)))]*regValues[Integer.parseInt(String.valueOf(str4.charAt(1)))];
+              
             }
             else if(str.equals("div")){
                 String str2 = scan.next();
@@ -393,9 +313,6 @@ public class JustNew {
                 set = instrucOpcode("div") + "00000" + registerAddress(str2) + registerAddress(str3);
                 instr_bin.add(set);
                 continue;
-                //regValues[0]=regValues[Integer.parseInt(String.valueOf(str2.charAt(1)))]/regValues[Integer.parseInt(String.valueOf(str3.charAt(1)))];
-                //regValues[1]=regValues[Integer.parseInt(String.valueOf(str2.charAt(1)))]%regValues[Integer.parseInt(String.valueOf(str3.charAt(1)))];
-
             }
             else if(str.equals("rs")){
                 String str2 = scan.next();
@@ -403,8 +320,6 @@ public class JustNew {
                 set = instrucOpcode("rs") + registerAddress(str2) + binaryConvImm(str3.substring(1));
                 instr_bin.add(set);
                 continue;
-                //regValues[Integer.parseInt(String.valueOf(str2.charAt(1)))]= (int) (regValues[Integer.parseInt(String.valueOf(str2.charAt(1)))]/Math.pow(2,Integer.parseInt(str3.substring(1))));
-
             }
             else if(str.equals("ls")){
                 String str2 = scan.next();
@@ -412,8 +327,6 @@ public class JustNew {
                 set = instrucOpcode("ls") + registerAddress(str2) + binaryConvImm(str3.substring(1));
                 instr_bin.add(set);
                 continue;
-                //regValues[Integer.parseInt(String.valueOf(str2.charAt(1)))]= (int) (regValues[Integer.parseInt(String.valueOf(str2.charAt(1)))]*Math.pow(2,Integer.parseInt(str3.substring(1))));
-
             }
             else if(str.equals("xor")){
                 String str2 = scan.next();
@@ -422,8 +335,6 @@ public class JustNew {
                 set = instrucOpcode("xor") + "00" + registerAddress(str2) + registerAddress(str3) + registerAddress(str4);
                 instr_bin.add(set);
                 continue;
-                //regValues[Integer.parseInt(String.valueOf(str2.charAt(1)))]= regValues[Integer.parseInt(String.valueOf(str3.charAt(1)))]^regValues[Integer.parseInt(String.valueOf(str4.charAt(1)))];
-
             }
             else if(str.equals("or")){
                 String str2 = scan.next();
@@ -432,7 +343,7 @@ public class JustNew {
                 set = instrucOpcode("or") + "00" + registerAddress(str2) + registerAddress(str3) + registerAddress(str4);
                 instr_bin.add(set);
                 continue;
-                //regValues[Integer.parseInt(String.valueOf(str2.charAt(1)))]= regValues[Integer.parseInt(String.valueOf(str3.charAt(1)))]|regValues[Integer.parseInt(String.valueOf(str4.charAt(1)))];
+                
             }
             else if(str.equals("and")){
                 String str2 = scan.next();
@@ -441,7 +352,7 @@ public class JustNew {
                 set = instrucOpcode("and") + "00" + registerAddress(str2) + registerAddress(str3) + registerAddress(str4);
                 instr_bin.add(set);
                 continue;
-                //regValues[Integer.parseInt(String.valueOf(str2.charAt(1)))]= regValues[Integer.parseInt(String.valueOf(str3.charAt(1)))]&regValues[Integer.parseInt(String.valueOf(str4.charAt(1)))];
+                
             }
             else if(str.equals("not")){
                 String str2 = scan.next();
@@ -449,7 +360,6 @@ public class JustNew {
                 set = instrucOpcode("not") + "00000" + registerAddress(str2) + registerAddress(str3);
                 instr_bin.add(set);
                 continue;
-                //regValues[Integer.parseInt(String.valueOf(str2.charAt(1)))]= ~regValues[Integer.parseInt(String.valueOf(str3.charAt(1)))];
             }
             else if(str.equals("cmp")){
                 String str2 = scan.next();
@@ -474,9 +384,6 @@ public class JustNew {
             //jmp label_name
             else if(str.equals("jmp")){
                 String str2 = scan.next();
-
-                
-
                 //if the label hasnt come before the jmp instr
                 // i.e the label is not in hashmap
                 if(labels.get(str2) == null){
@@ -497,11 +404,6 @@ public class JustNew {
                     instr_bin.add(set);
                 }
                 continue;
-                //set = instrucOpcode("jmp") + "000" + binaryConvImm(str2.substring(1));
-                // instead of direct printing, store in an arraylist
-                
-                //instr_bin.add(set); 
-
             }
 
             //jlt label_name
@@ -518,8 +420,6 @@ public class JustNew {
                     instr_bin.add(set);
                 }
                 continue;
-                //set = instrucOpcode("jlt") + "000" + binaryConvImm(str2.substring(1));
-                //instr_bin.add(set);
             }
 
             else if(str.equals("jgt")){
@@ -535,8 +435,6 @@ public class JustNew {
                     instr_bin.add(set);
                 }
                 continue;
-                //set = instrucOpcode("jgt") + "000" + binaryConvImm(str2.substring(1));
-                //instr_bin.add(set);
             }
             else if(str.equals("je")){
                 String str2 = scan.next();
@@ -551,8 +449,6 @@ public class JustNew {
                     instr_bin.add(set);
                 }
                 continue;
-                //set = instrucOpcode("je") + "000" + binaryConvImm(str2.substring(1));
-                //instr_bin.add(set);
             }
             else if(str.equals("hlt")){
                 set = instrucOpcode("hlt") + "00000000000";
@@ -565,30 +461,9 @@ public class JustNew {
                 Error_flag = true;
                 break;
             }
-            
-
-            /*
-            System.out.println(regValues[0]);
-            System.out.println(regValues[1]);
-            System.out.println(regValues[2]);
-            System.out.println(regValues[3]);
-            System.out.println(regValues[4]);
-            System.out.println(regValues[5]);
-            System.out.println(regValues[6]);
-            System.out.println(FLAG); */
-            // then check command and send it to
-            // fn of that command where complete assm code is returned
-
-//            set = instrucOpcode(str);
-//            String str4 = scan.next();
-//            set = set + registerAddress(str4);
-//            String str5 = scan.next();// will continue from here later..
-//            // will need to make if statement for add and sub also..
-
         }
 
         if(!Error_flag){
-
             //setting address no.s of variables
             for(String vars : vars_inorder){
                 labels.replace(vars, instr_bin.size() + vars_inorder.indexOf(vars));
@@ -599,27 +474,9 @@ public class JustNew {
             String comp_instr; //complete instruction
             if (incomp.size() != 0){
                 for(int item : incomp){
-                    //System.out.println(item);
-
-                    // separate at white space, the instruction in instr_bin[item] 
-                    //obtain (opcode + unusedbits) in one string and label name in another
-                    //obtain value of labelname from map
-                    //convert it to bin
-                    //rewrite instr_bin[item] 
-
                     incomp_instr = instr_bin.get(item);
                     arrOfStr = incomp_instr.split(" ",2);
-                    /*
-                    for(String each : arrOfStr){
-                        System.out.println(each);
-                    }
-                    
-                    System.out.println(arrOfStr.length);
-                    System.out.println(instr_bin.size());
-                    System.out.println(labels.get(arrOfStr[1]));
-                    */
                     comp_instr = arrOfStr[0] + Int_to_Bin(labels.get(arrOfStr[1]));
-                    //System.out.println(comp_instr);
                     instr_bin.set(item,comp_instr);
                         
                 }
