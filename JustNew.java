@@ -479,17 +479,11 @@ public class JustNew {
                     comp_instr = arrOfStr[0] + Int_to_Bin(labels.get(arrOfStr[1]));
                     instr_bin.set(item,comp_instr);
                         
-                }
-
-                for(String binary : instr_bin){
-                    System.out.println(binary);
-                }
-                
+                }  
             }
-            else if(incomp.size() == 0){
-                for(String binary : instr_bin){
-                    System.out.println(binary);
-                }
+
+            for(String binary : instr_bin){
+                System.out.println(binary);
             }
         }
     }
