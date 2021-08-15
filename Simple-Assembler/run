@@ -1,5 +1,5 @@
 #!/bin/bash
 
 # Add command to run your program here
-#echo "Hello World"
-java JustNew.java
+javac Assembler.java
+java Assembler
