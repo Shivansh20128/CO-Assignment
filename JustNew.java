@@ -226,17 +226,19 @@ public class JustNew {
 		
                 boolean invalid_label = false;
                 String label_name = str.substring(0,str.length()-1);
-
+                if(label_name.equals("mov")){
+                    invalid_label = true;
+                }
                 //System.out.println(label_name);
-                if(!(instrucOpcode(label_name).equals("-1"))){
+                if(!instrucOpcode(label_name).equals("-1") || !registerAddress(label_name).equals("-1")){
                     System.out.println(str);
                     System.out.println(label_name);
                     invalid_label=true;
                     
                 }
-                if(!registerAddress(label_name).equals("-1")){
-                    invalid_label=true;
-                }
+                // if(!registerAddress(label_name).equals("-1")){
+                //     invalid_label=true;
+                // }
                 for(int i=0; i< specialCharacters.length() ; i++){
                         
                     //Checking if the input string contain any of the specified Characters
