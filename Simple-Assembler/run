@@ -2,4 +2,4 @@
 
 # Add command to run your program here
 javac Assembler2.java
-java Assembler
+java Assembler2
