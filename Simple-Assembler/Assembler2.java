@@ -2,16 +2,16 @@ import java.lang.reflect.Array;
 import java.util.*;
 import java.io.*;
 
-public class Assembler {
+public class Assembler2 {
     static boolean Error_flag = false;
     static int count = 0;
 
     static String instrucOpcode(String p) {// returns 5 bit opcode for instruction
         count++;
-        
+
         if (p.equals("add")) {
             return "0000000";
-        } 
+        }
         if (p.equals("sub")) {
             return "0000100";// Type A
         }
@@ -33,10 +33,10 @@ public class Assembler {
         if (p.equals("div")) {
             return "00111";
         }
-        if(p.equals("rs")) {
+        if (p.equals("rs")) {
             return "01000";
         }
-        if(p.equals("ls")) {
+        if (p.equals("ls")) {
             return "01001";
         }
         if (p.equals("xor")) {
@@ -45,7 +45,7 @@ public class Assembler {
         if (p.equals("or")) {
             return "01011";
         }
-        if (p.equals("and")){
+        if (p.equals("and")) {
             return "01100";
         }
         if (p.equals("not")) {
@@ -68,8 +68,7 @@ public class Assembler {
         }
         if (p.equals("hlt")) {
             return "10011";
-        }
-        else {
+        } else {
             return "-1";
         }
     }
@@ -98,49 +97,49 @@ public class Assembler {
         }
         if (s.equals("FLAGS")) {
             return "111";
-        } 
-        else {
+        } else {
             Error_flag = true;
             System.out.print("At line ");
             System.out.print(count);
             System.out.println(" ERROR: wrong register name");
-            return "-1"; // generate error and exit 
+            return "-1"; // generate error and exit
         }
 
     }
 
-    //throws a NumberFormatException if the string cannot be converted to an int type
-    static String binaryConvImm(String st) { 
+    // throws a NumberFormatException if the string cannot be converted to an int
+    // type
+    static String binaryConvImm(String st) {
         int n = Integer.parseInt(st);
         return Int_to_Bin(n);
     }
 
-    static String Int_to_Bin(int num){
-        if (num > 255 || num <0) {
+    static String Int_to_Bin(int num) {
+        if (num > 255 || num < 0) {
             Error_flag = true;
-            //print line no.
+            // print line no.
             System.out.print("At line ");
             System.out.print(count);
             System.out.println(" ERROR: invalid immediate value");
-            return "-1"; //generate error and exit code
+            return "-1"; // generate error and exit code
         }
         String p = "";
         int binary[] = new int[8];
         int index = 0;
-        while(num > 0){
-            binary[index++] = num%2;
-            num = num/2;
+        while (num > 0) {
+            binary[index++] = num % 2;
+            num = num / 2;
         }
-        for(int i = index-1;i >= 0;i--){
+        for (int i = index - 1; i >= 0; i--) {
             p = p + Integer.toString(binary[i]);
-            
+
         }
-        for(int j=index; j <= 7; j++){
+        for (int j = index; j <= 7; j++) {
             p = "0" + p;
         }
         return p;
     }
-    
+
     static void printarr(int[] a) {// just to print array asap for verification;
         for (int i = 0; i < a.length; i++) {
             System.out.print(a[i] + " ");
@@ -154,75 +153,75 @@ public class Assembler {
             return 0;
         }
     }
-    static int[] regValues= new int[6];
+
+    static int[] regValues = new int[6];
     static String FLAG = "";
 
     public static void main(String[] args) {
 
-        String[] registers = {"R0","R1","R2", "R3", "R4","R5","R6","FLAGS"};
-        String[] opcodes = {"add","sub","ld","mov","st","mul","div","rs","ls","xor","or","and","not","cmp","jmp","jlt","jgt","je","hlt"};
-        
-        //hashmap for storing label-address pair in jump instructions
-        //synchronizing the hashmap
-        //Map myhash = Collections.synchronizedMap(hashMap);
+        String[] registers = { "R0", "R1", "R2", "R3", "R4", "R5", "R6", "FLAGS" };
+        String[] opcodes = { "add", "sub", "ld", "mov", "st", "mul", "div", "rs", "ls", "xor", "or", "and", "not",
+                "cmp", "jmp", "jlt", "jgt", "je", "hlt" };
+
+        // hashmap for storing label-address pair in jump instructions
+        // synchronizing the hashmap
+        // Map myhash = Collections.synchronizedMap(hashMap);
         HashMap<String, Integer> labels = new HashMap<String, Integer>();
 
-        //array list of initially incomplete jump instructions
+        // array list of initially incomplete jump instructions
         ArrayList<Integer> incomp = new ArrayList<Integer>();
 
-        //array list for storing binaries of each instruction
-        //at indexes corresponding to address no.s in memory
-        //need to check instructions dont exceed 256
+        // array list for storing binaries of each instruction
+        // at indexes corresponding to address no.s in memory
+        // need to check instructions dont exceed 256
         ArrayList<String> instr_bin = new ArrayList<String>();
-        //easier to add variables in arraylist after hlt 
+        // easier to add variables in arraylist after hlt
 
-        //for storing variables in order
+        // for storing variables in order
         ArrayList<String> vars_inorder = new ArrayList<String>();
 
-        //for storing label names in order
+        // for storing label names in order
         ArrayList<String> labelNamesArr = new ArrayList<String>();
 
         HashMap<String, Integer> undefined = new HashMap<String, Integer>();
 
-        
         String R0, R1, R2, R3, R4, R5, R6, FLAGS;
         String specialCharacters = " !#$%&'()*+,-./:;<=>?@[]^`{|}";
-        
+
         Scanner scan = new Scanner(System.in);
         String str;
         // for hault do exit
-        while (count<=256 && !Error_flag) {
+        while (count <= 256 && !Error_flag) {
             String set = "";// complete assemply coded string
             str = scan.next();
-            if(count==255 && !str.equals("hlt")){
+            if (count == 255 && !str.equals("hlt")) {
                 Error_flag = true;
                 System.out.println(" ERROR: HLT NOT THE LAST INSTRUCTION");
                 break;
             }
 
             // variables
-            if(str.equals("var")){
-                //var should only be there if instr_bin.size() = 0
-                //else exit code
-                if(instr_bin.size() != 0){
+            if (str.equals("var")) {
+                // var should only be there if instr_bin.size() = 0
+                // else exit code
+                if (instr_bin.size() != 0) {
                     Error_flag = true;
-                    //also print the line of code where error occurs
+                    // also print the line of code where error occurs
                     System.out.print("At line ");
                     System.out.print(count);
                     System.out.println(" ERROR: variable declared in the middle of the program");
                     break;
                 }
-                
 
                 String variable = scan.next();
-                
-                //variable name should be valid
+
+                // variable name should be valid
                 boolean invalid_var = false;
 
                 for (String element3 : registers) {
                     if (variable.equals(element3)) {
-                        //error
-                        //exit
+                        // error
+                        // exit
                         invalid_var = true;
                         System.out.print("At line ");
                         System.out.print(count);
@@ -233,8 +232,8 @@ public class Assembler {
 
                 for (String element4 : opcodes) {
                     if (variable.equals(element4)) {
-                        //error
-                        //exit
+                        // error
+                        // exit
                         invalid_var = true;
                         System.out.print("At line ");
                         System.out.print(count);
@@ -242,46 +241,45 @@ public class Assembler {
                         break;
                     }
                 }
-                
-                for(int i=0; i< specialCharacters.length() ; i++){
-                        
-                    //Checking if the input string contain any of the specified Characters
-                    if(variable.contains(Character.toString(specialCharacters.charAt(i)))){
+
+                for (int i = 0; i < specialCharacters.length(); i++) {
+
+                    // Checking if the input string contain any of the specified Characters
+                    if (variable.contains(Character.toString(specialCharacters.charAt(i)))) {
                         invalid_var = true;
-                        //also print the line number where error occured
+                        // also print the line number where error occured
                         System.out.print("At line ");
                         System.out.print(count);
                         System.out.println(" ERROR: Invalid vaiable name ");
                         break;
                     }
                 }
-                //exit code
-                if(invalid_var){
+                // exit code
+                if (invalid_var) {
                     Error_flag = true;
                     break;
-                }
-                else if(!invalid_var){
-                    //put the variable in the hashmap, set address no. to -1
-                    //after hlt instruction, address no. of 1st var = instr_bin.size() + 1
-                    labels.put(variable,-1);
-                    //add it to vars_inorder
+                } else if (!invalid_var) {
+                    // put the variable in the hashmap, set address no. to -1
+                    // after hlt instruction, address no. of 1st var = instr_bin.size() + 1
+                    labels.put(variable, -1);
+                    // add it to vars_inorder
                     vars_inorder.add(variable);
                     count++;
-                    
+
                     continue;
 
-                }    
+                }
             }
 
-            //handle instr starting with "<label_name>:"
-            //label_name should be valid
-            if(str.charAt(str.length() - 1) == ':'){
+            // handle instr starting with "<label_name>:"
+            // label_name should be valid
+            if (str.charAt(str.length() - 1) == ':') {
                 boolean invalid_label = false;
-                String label_name = str.substring(0,str.length()-1);
-                
+                String label_name = str.substring(0, str.length() - 1);
+
                 for (String element : registers) {
                     if (label_name.equals(element)) {
-                        //error and exit
+                        // error and exit
                         invalid_label = true;
                         System.out.print("At line ");
                         System.out.print(count + 1);
@@ -290,46 +288,46 @@ public class Assembler {
                     }
                 }
 
-                for (String element2 : opcodes){
-                    if (label_name.equals(element2)){
+                for (String element2 : opcodes) {
+                    if (label_name.equals(element2)) {
                         System.out.print("At line ");
                         System.out.print(count + 1);
                         System.out.println(" ERROR: label name can't be a mneomonic");
-                        //error and exit
+                        // error and exit
                         invalid_label = true;
                         break;
                     }
                 }
-                //redeclaration of a label is an error
-                if(labels.get(label_name) != null &&  labels.get(label_name) != -1){
+                // redeclaration of a label is an error
+                if (labels.get(label_name) != null && labels.get(label_name) != -1) {
                     invalid_label = true;
-                    //also print the line number where error occured
+                    // also print the line number where error occured
                     System.out.print("At line ");
                     System.out.print(count + 1);
                     System.out.println(" ERROR: redeclaration of a label ");
-                    //break;
+                    // break;
                 }
 
-                for(int i=0; i< specialCharacters.length() ; i++){    
-                    //Checking if the input string contain any of the specified Characters
-                    if(label_name.contains(Character.toString(specialCharacters.charAt(i)))){
+                for (int i = 0; i < specialCharacters.length(); i++) {
+                    // Checking if the input string contain any of the specified Characters
+                    if (label_name.contains(Character.toString(specialCharacters.charAt(i)))) {
                         invalid_label = true;
-                        //also print the line number where error occured
+                        // also print the line number where error occured
                         System.out.print("At line ");
                         System.out.print(count + 1);
                         System.out.println(" ERROR: Invalid Label name ");
                         break;
                     }
                 }
-                //exit code
-                if(invalid_label){
+                // exit code
+                if (invalid_label) {
                     Error_flag = true;
                     break;
                 }
 
-                if(!invalid_label){
-                    for(String e : vars_inorder){
-                        if(e.equals(label_name)){
+                if (!invalid_label) {
+                    for (String e : vars_inorder) {
+                        if (e.equals(label_name)) {
                             Error_flag = true;
                             System.out.print("At line ");
                             System.out.print(count + 1);
@@ -337,16 +335,15 @@ public class Assembler {
                             break;
                         }
                     }
-                    if(Error_flag){
+                    if (Error_flag) {
                         break;
                     }
-                    //add to labelNamesArr
+                    // add to labelNamesArr
                     labelNamesArr.add(label_name);
-                    //add to hashmap with value as its address no. 
-                    if(labels.get(label_name) == null){
+                    // add to hashmap with value as its address no.
+                    if (labels.get(label_name) == null) {
                         labels.put(label_name, instr_bin.size());
-                    }
-                    else{
+                    } else {
                         labels.replace(label_name, instr_bin.size());
                     }
                     // read the instruction ahead and convert to binary
@@ -358,7 +355,7 @@ public class Assembler {
                 String str2 = scan.next();
                 String str3 = scan.next();
                 if (checkImm(str3) == 1) {
-                    if(str2.equals("FLAGS")){
+                    if (str2.equals("FLAGS")) {
                         System.out.println("At Line " + count + " ERROR: illegal use of FLAGS register");
                         Error_flag = true;
                         break;
@@ -376,7 +373,7 @@ public class Assembler {
                 String str2 = scan.next();
                 String str3 = scan.next();
                 String str4 = scan.next();
-                if(str2.equals("FLAGS") || str3.equals("FLAGS") || str4.equals("FLAGS") ){
+                if (str2.equals("FLAGS") || str3.equals("FLAGS") || str4.equals("FLAGS")) {
                     System.out.println("At Line " + count + " ERROR: illegal use of FLAGS register");
                     Error_flag = true;
                     break;
@@ -384,18 +381,17 @@ public class Assembler {
                 set = instrucOpcode(str) + registerAddress(str2) + registerAddress(str3) + registerAddress(str4);
                 instr_bin.add(set);
                 continue;
-            }
-            else if (str.equals("ld") || str.equals("st")) {
+            } else if (str.equals("ld") || str.equals("st")) {
                 String str2 = scan.next();
-                String str3 = scan.next();// this is mem addr/ variable 
-                if(str2.equals("FLAGS") || str3.equals("FLAGS")){
+                String str3 = scan.next();// this is mem addr/ variable
+                if (str2.equals("FLAGS") || str3.equals("FLAGS")) {
                     System.out.println("At Line " + count + " ERROR: illegal use of FLAGS register");
                     Error_flag = true;
                     break;
                 }
 
-                for(String e : labelNamesArr){
-                    if(e.equals(str3)){
+                for (String e : labelNamesArr) {
+                    if (e.equals(str3)) {
                         Error_flag = true;
                         System.out.print("At line");
                         System.out.print(count);
@@ -403,36 +399,36 @@ public class Assembler {
                         break;
                     }
                 }
-                if(Error_flag){
+                if (Error_flag) {
                     break;
                 }
-                //incomplete instr stored in instr_bin
-                //will be completed after halt
+                // incomplete instr stored in instr_bin
+                // will be completed after halt
                 set = instrucOpcode(str) + registerAddress(str2);
-                undefined.put(str3,count);
+                undefined.put(str3, count);
                 instr_bin.add(set + " " + str3);
                 incomp.add(instr_bin.indexOf(set + " " + str3));
                 continue;
             }
 
-            else if(str.equals("mul")){
+            else if (str.equals("mul")) {
                 String str2 = scan.next();
                 String str3 = scan.next();
                 String str4 = scan.next();
-                if(str2.equals("FLAGS") || str3.equals("FLAGS") || str4.equals("FLAGS") ){
+                if (str2.equals("FLAGS") || str3.equals("FLAGS") || str4.equals("FLAGS")) {
                     System.out.println("At Line " + count + " ERROR: illegal use of FLAGS register");
                     Error_flag = true;
                     break;
                 }
 
-                set = instrucOpcode("mul") + "00" + registerAddress(str2) + registerAddress(str3) + registerAddress(str4);
+                set = instrucOpcode("mul") + "00" + registerAddress(str2) + registerAddress(str3)
+                        + registerAddress(str4);
                 instr_bin.add(set);
-                continue;    
-            }
-            else if(str.equals("div")){
+                continue;
+            } else if (str.equals("div")) {
                 String str2 = scan.next();
                 String str3 = scan.next();
-                if(str2.equals("FLAGS") || str3.equals("FLAGS")){
+                if (str2.equals("FLAGS") || str3.equals("FLAGS")) {
                     System.out.println("At Line " + count + " ERROR: illegal use of FLAGS register");
                     Error_flag = true;
                     break;
@@ -440,12 +436,11 @@ public class Assembler {
                 set = instrucOpcode("div") + "00000" + registerAddress(str2) + registerAddress(str3);
                 instr_bin.add(set);
                 continue;
-            }
-            else if(str.equals("rs")){
+            } else if (str.equals("rs")) {
                 String str2 = scan.next();
                 String str3 = scan.next();
 
-                if(str2.equals("FLAGS") || str3.equals("FLAGS") ){
+                if (str2.equals("FLAGS") || str3.equals("FLAGS")) {
                     System.out.println("At Line " + count + " ERROR: illegal use of FLAGS register");
                     Error_flag = true;
                     break;
@@ -453,12 +448,11 @@ public class Assembler {
                 set = instrucOpcode("rs") + registerAddress(str2) + binaryConvImm(str3.substring(1));
                 instr_bin.add(set);
                 continue;
-            }
-            else if(str.equals("ls")){
+            } else if (str.equals("ls")) {
                 String str2 = scan.next();
                 String str3 = scan.next();
 
-                if(str2.equals("FLAGS") || str3.equals("FLAGS")){
+                if (str2.equals("FLAGS") || str3.equals("FLAGS")) {
                     System.out.println("At Line " + count + " ERROR: illegal use of FLAGS register");
                     Error_flag = true;
                     break;
@@ -466,51 +460,50 @@ public class Assembler {
                 set = instrucOpcode("ls") + registerAddress(str2) + binaryConvImm(str3.substring(1));
                 instr_bin.add(set);
                 continue;
-            }
-            else if(str.equals("xor")){
+            } else if (str.equals("xor")) {
                 String str2 = scan.next();
                 String str3 = scan.next();
                 String str4 = scan.next();
 
-                if(str2.equals("FLAGS") || str3.equals("FLAGS") || str4.equals("FLAGS") ){
+                if (str2.equals("FLAGS") || str3.equals("FLAGS") || str4.equals("FLAGS")) {
                     System.out.println("At Line " + count + " ERROR: illegal use of FLAGS register");
                     Error_flag = true;
                     break;
                 }
-                set = instrucOpcode("xor") + "00" + registerAddress(str2) + registerAddress(str3) + registerAddress(str4);
+                set = instrucOpcode("xor") + "00" + registerAddress(str2) + registerAddress(str3)
+                        + registerAddress(str4);
                 instr_bin.add(set);
                 continue;
-            }
-            else if(str.equals("or")){
+            } else if (str.equals("or")) {
                 String str2 = scan.next();
                 String str3 = scan.next();
                 String str4 = scan.next();
-                if(str2.equals("FLAGS") || str3.equals("FLAGS") || str4.equals("FLAGS") ){
+                if (str2.equals("FLAGS") || str3.equals("FLAGS") || str4.equals("FLAGS")) {
                     System.out.println("At Line " + count + " ERROR: illegal use of FLAGS register");
                     Error_flag = true;
                     break;
                 }
-                set = instrucOpcode("or") + "00" + registerAddress(str2) + registerAddress(str3) + registerAddress(str4);
+                set = instrucOpcode("or") + "00" + registerAddress(str2) + registerAddress(str3)
+                        + registerAddress(str4);
                 instr_bin.add(set);
-                continue;    
-            }
-            else if(str.equals("and")){
+                continue;
+            } else if (str.equals("and")) {
                 String str2 = scan.next();
                 String str3 = scan.next();
                 String str4 = scan.next();
-                if(str2.equals("FLAGS") || str3.equals("FLAGS") || str4.equals("FLAGS") ){
+                if (str2.equals("FLAGS") || str3.equals("FLAGS") || str4.equals("FLAGS")) {
                     System.out.println("At Line " + count + " ERROR: illegal use of FLAGS register");
                     Error_flag = true;
                     break;
                 }
-                set = instrucOpcode("and") + "00" + registerAddress(str2) + registerAddress(str3) + registerAddress(str4);
+                set = instrucOpcode("and") + "00" + registerAddress(str2) + registerAddress(str3)
+                        + registerAddress(str4);
                 instr_bin.add(set);
-                continue;   
-            }
-            else if(str.equals("not")){
+                continue;
+            } else if (str.equals("not")) {
                 String str2 = scan.next();
                 String str3 = scan.next();
-                if(str2.equals("FLAGS") || str3.equals("FLAGS") ){
+                if (str2.equals("FLAGS") || str3.equals("FLAGS")) {
                     System.out.println("At Line " + count + " ERROR: illegal use of FLAGS register");
                     Error_flag = true;
                     break;
@@ -518,42 +511,39 @@ public class Assembler {
                 set = instrucOpcode("not") + "00000" + registerAddress(str2) + registerAddress(str3);
                 instr_bin.add(set);
                 continue;
-            }
-            else if(str.equals("cmp")){
+            } else if (str.equals("cmp")) {
                 String str2 = scan.next();
                 String str3 = scan.next();
-                if(str2.equals("FLAGS") || str3.equals("FLAGS")){
+                if (str2.equals("FLAGS") || str3.equals("FLAGS")) {
                     System.out.println("At Line " + count + " ERROR: illegal use of FLAGS register");
                     Error_flag = true;
                     break;
                 }
                 set = instrucOpcode("cmp") + "00000" + registerAddress(str2) + registerAddress(str3);
                 instr_bin.add(set);
-                if(Integer.parseInt(str2.substring(1))<Integer.parseInt(str3.substring(1))){
+                if (Integer.parseInt(str2.substring(1)) < Integer.parseInt(str3.substring(1))) {
                     FLAG = "L";
-                }
-                else if(Integer.parseInt(str2.substring(1))==Integer.parseInt(str3.substring(1))){
+                } else if (Integer.parseInt(str2.substring(1)) == Integer.parseInt(str3.substring(1))) {
                     FLAG = "E";
-                }
-                else if(Integer.parseInt(str2.substring(1))>Integer.parseInt(str3.substring(1))){
+                } else if (Integer.parseInt(str2.substring(1)) > Integer.parseInt(str3.substring(1))) {
                     FLAG = "G";
                 }
                 continue;
             }
-            
-            //must reset FLAGS reg after every instruction
 
-            //jmp label_name
-            else if(str.equals("jmp")){
+            // must reset FLAGS reg after every instruction
+
+            // jmp label_name
+            else if (str.equals("jmp")) {
                 String str2 = scan.next();
-                if(str2.equals("FLAGS")){
+                if (str2.equals("FLAGS")) {
                     System.out.println("At Line " + count + " ERROR: illegal use of FLAGS register");
                     Error_flag = true;
                     break;
                 }
 
-                for(String e : vars_inorder){
-                    if(e.equals(str2)){
+                for (String e : vars_inorder) {
+                    if (e.equals(str2)) {
                         Error_flag = true;
                         System.out.print("At line");
                         System.out.print(count);
@@ -561,47 +551,47 @@ public class Assembler {
                         break;
                     }
                 }
-                if(Error_flag){
+                if (Error_flag) {
                     break;
                 }
 
-                //if the label hasnt come before the jmp instr
+                // if the label hasnt come before the jmp instr
                 // i.e the label is not in hashmap
-                if(labels.get(str2) == null){
-                    labels.put(str2,-1); //add the label to map
-                    //add to labelNamesArr
+                if (labels.get(str2) == null) {
+                    labels.put(str2, -1); // add the label to map
+                    // add to labelNamesArr
                     labelNamesArr.add(str2);
-                    //write the instruc just containing the opcode and unused bits
+                    // write the instruc just containing the opcode and unused bits
                     // white space + label_name: in the bin array
                     set = instrucOpcode("jmp") + "000";
-                    undefined.put(str2,count);
+                    undefined.put(str2, count);
                     instr_bin.add(set + " " + str2);
-                    //store this index in incomp array
+                    // store this index in incomp array
                     incomp.add(instr_bin.indexOf(set + " " + str2));
                 }
 
-                //label was encountered before the jmp instr
-                //label is in hashmap, value is not -1
-                //its value stores the address no.
-                if(labels.get(str2) != -1){
+                // label was encountered before the jmp instr
+                // label is in hashmap, value is not -1
+                // its value stores the address no.
+                if (labels.get(str2) != -1) {
                     set = instrucOpcode("jmp") + "000" + Int_to_Bin(labels.get(str2));
                     instr_bin.add(set);
                 }
                 continue;
             }
 
-            //jlt label_name
-            else if(str.equals("jlt")){
+            // jlt label_name
+            else if (str.equals("jlt")) {
                 String str2 = scan.next();
-                //can be defined as a separate function
-                if(str2.equals("FLAGS")){
+                // can be defined as a separate function
+                if (str2.equals("FLAGS")) {
                     System.out.println("At Line " + count + " ERROR: illegal use of FLAGS register");
                     Error_flag = true;
                     break;
                 }
 
-                for(String e : vars_inorder){
-                    if(e.equals(str2)){
+                for (String e : vars_inorder) {
+                    if (e.equals(str2)) {
                         Error_flag = true;
                         System.out.print("At line");
                         System.out.print(count);
@@ -609,35 +599,35 @@ public class Assembler {
                         break;
                     }
                 }
-                if(Error_flag){
+                if (Error_flag) {
                     break;
                 }
 
-                if(labels.get(str2) == null){
+                if (labels.get(str2) == null) {
                     labelNamesArr.add(str2);
-                    labels.put(str2,-1);
+                    labels.put(str2, -1);
                     set = instrucOpcode("jlt") + "000";
-                    undefined.put(str2,count);
+                    undefined.put(str2, count);
                     instr_bin.add(set + " " + str2);
                     incomp.add(instr_bin.indexOf(set + " " + str2));
                 }
-                if(labels.get(str2) != -1){
+                if (labels.get(str2) != -1) {
                     set = instrucOpcode("jlt") + "000" + Int_to_Bin(labels.get(str2));
                     instr_bin.add(set);
                 }
                 continue;
             }
 
-            else if(str.equals("jgt")){
+            else if (str.equals("jgt")) {
                 String str2 = scan.next();
-                if(str2.equals("FLAGS")){
+                if (str2.equals("FLAGS")) {
                     System.out.println("At Line " + count + " ERROR: illegal use of FLAGS register");
                     Error_flag = true;
                     break;
                 }
 
-                for(String e : vars_inorder){
-                    if(e.equals(str2)){
+                for (String e : vars_inorder) {
+                    if (e.equals(str2)) {
                         Error_flag = true;
                         System.out.print("At line");
                         System.out.print(count);
@@ -645,34 +635,33 @@ public class Assembler {
                         break;
                     }
                 }
-                if(Error_flag){
+                if (Error_flag) {
                     break;
                 }
 
-                if(labels.get(str2) == null){
+                if (labels.get(str2) == null) {
                     labelNamesArr.add(str2);
-                    labels.put(str2,-1);
+                    labels.put(str2, -1);
                     set = instrucOpcode("jgt") + "000";
-                    undefined.put(str2,count);
+                    undefined.put(str2, count);
                     instr_bin.add(set + " " + str2);
                     incomp.add(instr_bin.indexOf(set + " " + str2));
                 }
-                if(labels.get(str2) != -1){
+                if (labels.get(str2) != -1) {
                     set = instrucOpcode("jgt") + "000" + Int_to_Bin(labels.get(str2));
                     instr_bin.add(set);
                 }
                 continue;
-            }
-            else if(str.equals("je")){
+            } else if (str.equals("je")) {
                 String str2 = scan.next();
-                if(str2.equals("FLAGS")){
+                if (str2.equals("FLAGS")) {
                     System.out.println("At Line " + count + " ERROR: illegal use of FLAGS register");
                     Error_flag = true;
                     break;
                 }
 
-                for(String e : vars_inorder){
-                    if(e.equals(str2)){
+                for (String e : vars_inorder) {
+                    if (e.equals(str2)) {
                         Error_flag = true;
                         System.out.print("At line");
                         System.out.print(count);
@@ -680,32 +669,30 @@ public class Assembler {
                         break;
                     }
                 }
-                if(Error_flag){
+                if (Error_flag) {
                     break;
                 }
 
-                if(labels.get(str2) == null){
+                if (labels.get(str2) == null) {
                     labelNamesArr.add(str2);
-                    labels.put(str2,-1);
+                    labels.put(str2, -1);
                     set = instrucOpcode("je") + "000";
-                    undefined.put(str2,count);
+                    undefined.put(str2, count);
                     instr_bin.add(set + " " + str2);
                     incomp.add(instr_bin.indexOf(set + " " + str2));
                 }
-                if(labels.get(str2) != -1){
+                if (labels.get(str2) != -1) {
                     set = instrucOpcode("je") + "000" + Int_to_Bin(labels.get(str2));
                     instr_bin.add(set);
                 }
                 continue;
-            }
-            else if(str.equals("hlt")){
-                
+            } else if (str.equals("hlt")) {
+
                 set = instrucOpcode("hlt") + "00000000000";
                 instr_bin.add(set);
-                //instr_bin.add(set);
+                // instr_bin.add(set);
                 break;
-            }
-            else{
+            } else {
                 System.out.print("At line ");
                 System.out.print(count + 1);
                 System.out.println(" ERROR: Invalid instruction or general syntax error");
@@ -714,51 +701,51 @@ public class Assembler {
             }
         }
 
-        if(scan.hasNextLine() && !Error_flag){
+        if (scan.hasNextLine() && !Error_flag) {
             Error_flag = true;
-            System.out.print("At line " + (count+1));
+            System.out.print("At line " + (count + 1));
             System.out.println(" ERROR: instruction should not be present after hlt");
         }
 
-        if(!Error_flag && count > 256){
+        if (!Error_flag && count > 256) {
             Error_flag = true;
             System.out.println("ERROR: number of instructions exceeded 256 ");
             System.out.println("and hlt instruction missing before or at line 256");
         }
 
-        if(!Error_flag){
-            //setting address no.s of variables
-            for(String vars : vars_inorder){
+        if (!Error_flag) {
+            // setting address no.s of variables
+            for (String vars : vars_inorder) {
                 labels.replace(vars, instr_bin.size() + vars_inorder.indexOf(vars));
             }
 
             String[] arrOfStr;
             String incomp_instr;
-            String comp_instr; //complete instruction
-            if (incomp.size() != 0){
-                for(int item : incomp){
-                    
+            String comp_instr; // complete instruction
+            if (incomp.size() != 0) {
+                for (int item : incomp) {
+
                     incomp_instr = instr_bin.get(item);
-                    arrOfStr = incomp_instr.split(" ",2);
-                    //System.out.println(arrOfStr[1]);
-                    if(labels.get(arrOfStr[1]) == null || labels.get(arrOfStr[1]) == -1){
+                    arrOfStr = incomp_instr.split(" ", 2);
+                    // System.out.println(arrOfStr[1]);
+                    if (labels.get(arrOfStr[1]) == null || labels.get(arrOfStr[1]) == -1) {
                         int i = undefined.get(arrOfStr[1]);
                         System.out.print("At line " + i);
                         System.out.println(" ERROR: " + arrOfStr[1] + " is an Undefined name");
-                        Error_flag=true;
+                        Error_flag = true;
                         break;
                     }
                     comp_instr = arrOfStr[0] + Int_to_Bin(labels.get(arrOfStr[1]));
-                    instr_bin.set(item,comp_instr);   
+                    instr_bin.set(item, comp_instr);
                 }
             }
-            
-            if(!Error_flag){
-                for(String binary : instr_bin){
-                System.out.println(binary);   
+
+            if (!Error_flag) {
+                for (String binary : instr_bin) {
+                    System.out.println(binary);
                 }
             }
-            
+
         }
     }
 }
