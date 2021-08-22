@@ -1,5 +1,5 @@
 #!/bin/bash
 
 # Add command to run your program here
-javac Assembler.java
+javac Assembler2.java
 java Assembler
