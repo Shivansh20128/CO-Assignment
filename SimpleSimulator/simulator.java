@@ -7,7 +7,7 @@ import java.io.FileWriter;
 import java.io.IOException;  
 
 
-public class simu { // gives what code is it and sends it respective fn
+public class simulator { // gives what code is it and sends it respective fn
     static Scanner scan = new Scanner(System.in);
     static int ProgramCounter = 0;
     static int cycle = 0;
