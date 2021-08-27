@@ -5,6 +5,7 @@ import java.io.*;
 public class Assembler {
     static boolean Error_flag = false;
     static int count = 0;
+    static int hlt_enc = 0;
 
     static String instrucOpcode(String p) {// returns 5 bit opcode for instruction
         count++;
@@ -589,7 +590,7 @@ public class Assembler {
                 }
                 continue;
             }
-
+            
             //jlt label_name
             else if(str.equals("jlt")){
                 String str2 = scan.next();
@@ -699,7 +700,7 @@ public class Assembler {
                 continue;
             }
             else if(str.equals("hlt")){
-                
+                hlt_enc = 1;
                 set = instrucOpcode("hlt") + "00000000000";
                 instr_bin.add(set);
                 //instr_bin.add(set);
@@ -713,18 +714,33 @@ public class Assembler {
                 break;
             }
         }
+        
+        /* 
+        hlt
+        .
+        .
+        . (256)
+        */
 
-        if(scan.hasNextLine() && !Error_flag){
+        //--------
+        if(!Error_flag && count > 256 && hlt_enc != 1){
+            Error_flag = true;
+            System.out.print("At line " + (count));
+            System.out.println(" ERROR: no hlt instruction present");
+        }
+        //---------
+        //str = scan.next(); 
+        if(scan.hasNextLine() && !Error_flag) { 
             Error_flag = true;
             System.out.print("At line " + (count+1));
             System.out.println(" ERROR: instruction should not be present after hlt");
         }
 
-        if(!Error_flag && count > 256){
-            Error_flag = true;
-            System.out.println("ERROR: number of instructions exceeded 256 ");
-            System.out.println("and hlt instruction missing before or at line 256");
-        }
+        // if(!Error_flag && count > 256){
+        //     Error_flag = true;
+        //     System.out.println("ERROR: number of instructions exceeded 256 ");
+        //     System.out.println("and hlt instruction missing before or at line 256");
+        // }
 
         if(!Error_flag){
             //setting address no.s of variables
