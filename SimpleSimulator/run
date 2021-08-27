@@ -2,5 +2,5 @@
 
 # Add command to run your program here
 
-javac simulator.java;
+javac simulator.java
 java simulator
