@@ -1,4 +1,3 @@
-//package com.brickBracker;
 import java.lang.reflect.Array;
 import java.util.*;
 import java.io.*;
@@ -6,14 +5,14 @@ import java.io.*;
 public class Assembler {
     static boolean Error_flag = false;
     static int count = 0;
-    //static int num_inputs = 0;
+    static int hlt_enc = 0;
 
     static String instrucOpcode(String p) {// returns 5 bit opcode for instruction
         count++;
         
         if (p.equals("add")) {
-            return "0000000";// Type A so 2 unused hence i set unused bits here only
-        } // concept hai abhi bas ~for rest too//finlized
+            return "0000000";
+        } 
         if (p.equals("sub")) {
             return "0000100";// Type A
         }
@@ -72,7 +71,7 @@ public class Assembler {
             return "10011";
         }
         else {
-            return "-1";// or whatever you want to write
+            return "-1";
         }
     }
 
@@ -111,20 +110,11 @@ public class Assembler {
 
     }
 
-    
-
-
-    /** converts immediate to binary then returns it as string 
-    throws a NumberFormatException if the string cannot be converted to an int type
-    should catch the error, print the address no. and exit the code !!
-    */
-    
+    //throws a NumberFormatException if the string cannot be converted to an int type
     static String binaryConvImm(String st) { 
         int n = Integer.parseInt(st);
         return Int_to_Bin(n);
     }
-
-    
 
     static String Int_to_Bin(int num){
         if (num > 255 || num <0) {
@@ -144,7 +134,7 @@ public class Assembler {
         }
         for(int i = index-1;i >= 0;i--){
             p = p + Integer.toString(binary[i]);
-            //System.out.print(binary[i]);
+            
         }
         for(int j=index; j <= 7; j++){
             p = "0" + p;
@@ -152,7 +142,6 @@ public class Assembler {
         return p;
     }
     
-
     static void printarr(int[] a) {// just to print array asap for verification;
         for (int i = 0; i < a.length; i++) {
             System.out.print(a[i] + " ");
@@ -182,12 +171,10 @@ public class Assembler {
         //array list of initially incomplete jump instructions
         ArrayList<Integer> incomp = new ArrayList<Integer>();
 
-        //array or array list for storing binaries of each instruction
-        // at indexes corresponding to address no.s in memory
+        //array list for storing binaries of each instruction
+        //at indexes corresponding to address no.s in memory
         //need to check instructions dont exceed 256
-        //initialise a counter in instrucOpcode?
         ArrayList<String> instr_bin = new ArrayList<String>();
-        //String instr_bin[] = new String[256]; 
         //easier to add variables in arraylist after hlt 
 
         //for storing variables in order
@@ -199,19 +186,15 @@ public class Assembler {
         HashMap<String, Integer> undefined = new HashMap<String, Integer>();
 
         
-        String R0, R1, R2, R3, R4, R5, R6, FLAGS;// registers are 16 bit so strings..//will be used in simulator ig
+        String R0, R1, R2, R3, R4, R5, R6, FLAGS;
         String specialCharacters = " !#$%&'()*+,-./:;<=>?@[]^`{|}";
         
         Scanner scan = new Scanner(System.in);
+        String str;
         // for hault do exit
-        //need to check instructions dont exceed 256!
         while (count<=256 && !Error_flag) {
-
-            
             String set = "";// complete assemply coded string
-            String str = scan.next();
-            //System.out.println(str);
-
+            str = scan.next();
             if(count==255 && !str.equals("hlt")){
                 Error_flag = true;
                 System.out.println(" ERROR: HLT NOT THE LAST INSTRUCTION");
@@ -219,9 +202,8 @@ public class Assembler {
             }
 
             // variables
-            
             if(str.equals("var")){
-                //var shoukd only be there if instr_bin.size() = 0
+                //var should only be there if instr_bin.size() = 0
                 //else exit code
                 if(instr_bin.size() != 0){
                     Error_flag = true;
@@ -237,11 +219,6 @@ public class Assembler {
                 
                 //variable name should be valid
                 boolean invalid_var = false;
-                // if(variable.equals("mov") || !variable.equals("movi") || !variable.equals("movr") || !instrucOpcode(variable).equals("-1") || !registerAddress(variable).equals("-1") ){
-                //     Error_flag = true;
-                //     System.out.println("ERROR: variable name can't be a mneomonic");
-                //     break;
-                // }
 
                 for (String element3 : registers) {
                     if (variable.equals(element3)) {
@@ -250,7 +227,7 @@ public class Assembler {
                         invalid_var = true;
                         System.out.print("At line ");
                         System.out.print(count);
-                        System.out.println("ERROR: variable name can't be a mneomonic");
+                        System.out.println(" ERROR: variable name can't be a mneomonic");
                         break;
                     }
                 }
@@ -262,16 +239,14 @@ public class Assembler {
                         invalid_var = true;
                         System.out.print("At line ");
                         System.out.print(count);
-                        System.out.println("ERROR: variable name can't be a mneomonic");
+                        System.out.println(" ERROR: variable name can't be a mneomonic");
                         break;
                     }
                 }
                 
-            
                 for(int i=0; i< specialCharacters.length() ; i++){
                         
                     //Checking if the input string contain any of the specified Characters
-                    
                     if(variable.contains(Character.toString(specialCharacters.charAt(i)))){
                         invalid_var = true;
                         //also print the line number where error occured
@@ -296,27 +271,18 @@ public class Assembler {
                     
                     continue;
 
-                }
-                
-
-                
+                }    
             }
 
             //handle instr starting with "<label_name>:"
-            //label_name should be valid; alphanumerics and underscores!
-            //shouldnt contain spaces or other special chars
+            //label_name should be valid
             if(str.charAt(str.length() - 1) == ':'){
-                
-		
                 boolean invalid_label = false;
                 String label_name = str.substring(0,str.length()-1);
-                //if(label_name)
-
+                
                 for (String element : registers) {
                     if (label_name.equals(element)) {
-                        
-                        //error
-                        //exit
+                        //error and exit
                         invalid_label = true;
                         System.out.print("At line ");
                         System.out.print(count + 1);
@@ -327,31 +293,14 @@ public class Assembler {
 
                 for (String element2 : opcodes){
                     if (label_name.equals(element2)){
-                        //System.out.println(label_name);
                         System.out.print("At line ");
                         System.out.print(count + 1);
-                        System.out.println("ERROR: label name can't be a mneomonic");
-                        //error
-                        //exit
+                        System.out.println(" ERROR: label name can't be a mneomonic");
+                        //error and exit
                         invalid_label = true;
-                        
                         break;
                     }
                 }
-
-                //System.out.println(label_name);
-                // !label_name.equals("movi") || !label_name.equals("movr") ||
-                //|| !instrucOpcode(label_name).equals("-1") || !registerAddress(label_name).equals("-1") 
-
-                //-------------------------
-                // if(label_name.equals("mov") ){
-                //     invalid_label = true;
-                //     System.out.print("At line ");
-                //     System.out.print(count);
-                //     System.out.println("ERROR: variable name can't be a mneomonic");
-                //     //break;
-                // }
-            
                 //redeclaration of a label is an error
                 if(labels.get(label_name) != null &&  labels.get(label_name) != -1){
                     invalid_label = true;
@@ -362,8 +311,7 @@ public class Assembler {
                     //break;
                 }
 
-                for(int i=0; i< specialCharacters.length() ; i++){
-                        
+                for(int i=0; i< specialCharacters.length() ; i++){    
                     //Checking if the input string contain any of the specified Characters
                     if(label_name.contains(Character.toString(specialCharacters.charAt(i)))){
                         invalid_label = true;
@@ -381,8 +329,6 @@ public class Assembler {
                 }
 
                 if(!invalid_label){
-                    
-                    
                     for(String e : vars_inorder){
                         if(e.equals(label_name)){
                             Error_flag = true;
@@ -395,27 +341,21 @@ public class Assembler {
                     if(Error_flag){
                         break;
                     }
-
                     //add to labelNamesArr
                     labelNamesArr.add(label_name);
                     //add to hashmap with value as its address no. 
                     if(labels.get(label_name) == null){
                         labels.put(label_name, instr_bin.size());
-
-                        //System.out.println("goes null");
                     }
                     else{
                         labels.replace(label_name, instr_bin.size());
-                        //System.out.println("not null");
                     }
-                    
                     // read the instruction ahead and convert to binary
                     continue;
                 }
             }
 
-            
-            if (str.equals("mov")) {// mov wale completed
+            if (str.equals("mov")) {
                 String str2 = scan.next();
                 String str3 = scan.next();
                 if (checkImm(str3) == 1) {
@@ -426,14 +366,11 @@ public class Assembler {
                     }
                     set = instrucOpcode("movi") + registerAddress(str2) + binaryConvImm(str3.substring(1));
                     instr_bin.add(set);
-                    //regValues[Integer.parseInt(String.valueOf(str2.charAt(1)))]=Integer.parseInt(str3.substring(1));
                 } else {
                     set = instrucOpcode("movr") + registerAddress(str2) + registerAddress(str3);
                     instr_bin.add(set);
-                    //regValues[Integer.parseInt(String.valueOf(str2.charAt(1)))]=regValues[Integer.parseInt(String.valueOf(str3.charAt(1)))];
                 }
                 continue;
-
             }
 
             else if (str.equals("add") || str.equals("sub")) {
@@ -448,7 +385,6 @@ public class Assembler {
                 set = instrucOpcode(str) + registerAddress(str2) + registerAddress(str3) + registerAddress(str4);
                 instr_bin.add(set);
                 continue;
-
             }
             else if (str.equals("ld") || str.equals("st")) {
                 String str2 = scan.next();
@@ -471,8 +407,6 @@ public class Assembler {
                 if(Error_flag){
                     break;
                 }
-                
-                
                 //incomplete instr stored in instr_bin
                 //will be completed after halt
                 set = instrucOpcode(str) + registerAddress(str2);
@@ -480,7 +414,6 @@ public class Assembler {
                 instr_bin.add(set + " " + str3);
                 incomp.add(instr_bin.indexOf(set + " " + str3));
                 continue;
-
             }
 
             else if(str.equals("mul")){
@@ -495,8 +428,7 @@ public class Assembler {
 
                 set = instrucOpcode("mul") + "00" + registerAddress(str2) + registerAddress(str3) + registerAddress(str4);
                 instr_bin.add(set);
-                continue;
-                
+                continue;    
             }
             else if(str.equals("div")){
                 String str2 = scan.next();
@@ -506,12 +438,9 @@ public class Assembler {
                     Error_flag = true;
                     break;
                 }
-
                 set = instrucOpcode("div") + "00000" + registerAddress(str2) + registerAddress(str3);
                 instr_bin.add(set);
                 continue;
-                
-
             }
             else if(str.equals("rs")){
                 String str2 = scan.next();
@@ -525,8 +454,6 @@ public class Assembler {
                 set = instrucOpcode("rs") + registerAddress(str2) + binaryConvImm(str3.substring(1));
                 instr_bin.add(set);
                 continue;
-                
-
             }
             else if(str.equals("ls")){
                 String str2 = scan.next();
@@ -540,8 +467,6 @@ public class Assembler {
                 set = instrucOpcode("ls") + registerAddress(str2) + binaryConvImm(str3.substring(1));
                 instr_bin.add(set);
                 continue;
-                
-
             }
             else if(str.equals("xor")){
                 String str2 = scan.next();
@@ -556,8 +481,6 @@ public class Assembler {
                 set = instrucOpcode("xor") + "00" + registerAddress(str2) + registerAddress(str3) + registerAddress(str4);
                 instr_bin.add(set);
                 continue;
-                
-
             }
             else if(str.equals("or")){
                 String str2 = scan.next();
@@ -570,8 +493,7 @@ public class Assembler {
                 }
                 set = instrucOpcode("or") + "00" + registerAddress(str2) + registerAddress(str3) + registerAddress(str4);
                 instr_bin.add(set);
-                continue;
-                
+                continue;    
             }
             else if(str.equals("and")){
                 String str2 = scan.next();
@@ -584,8 +506,7 @@ public class Assembler {
                 }
                 set = instrucOpcode("and") + "00" + registerAddress(str2) + registerAddress(str3) + registerAddress(str4);
                 instr_bin.add(set);
-                continue;
-                
+                continue;   
             }
             else if(str.equals("not")){
                 String str2 = scan.next();
@@ -598,7 +519,6 @@ public class Assembler {
                 set = instrucOpcode("not") + "00000" + registerAddress(str2) + registerAddress(str3);
                 instr_bin.add(set);
                 continue;
-                
             }
             else if(str.equals("cmp")){
                 String str2 = scan.next();
@@ -620,7 +540,6 @@ public class Assembler {
                     FLAG = "G";
                 }
                 continue;
-
             }
             
             //must reset FLAGS reg after every instruction
@@ -651,10 +570,6 @@ public class Assembler {
                 // i.e the label is not in hashmap
                 if(labels.get(str2) == null){
                     labels.put(str2,-1); //add the label to map
-                    
-
-                    //System.out.println(undefined[count]);
-                    
                     //add to labelNamesArr
                     labelNamesArr.add(str2);
                     //write the instruc just containing the opcode and unused bits
@@ -674,10 +589,8 @@ public class Assembler {
                     instr_bin.add(set);
                 }
                 continue;
-                
-
             }
-
+            
             //jlt label_name
             else if(str.equals("jlt")){
                 String str2 = scan.next();
@@ -701,11 +614,9 @@ public class Assembler {
                     break;
                 }
 
-
                 if(labels.get(str2) == null){
                     labelNamesArr.add(str2);
                     labels.put(str2,-1);
-                    
                     set = instrucOpcode("jlt") + "000";
                     undefined.put(str2,count);
                     instr_bin.add(set + " " + str2);
@@ -716,7 +627,6 @@ public class Assembler {
                     instr_bin.add(set);
                 }
                 continue;
-                
             }
 
             else if(str.equals("jgt")){
@@ -743,7 +653,6 @@ public class Assembler {
                 if(labels.get(str2) == null){
                     labelNamesArr.add(str2);
                     labels.put(str2,-1);
-                    
                     set = instrucOpcode("jgt") + "000";
                     undefined.put(str2,count);
                     instr_bin.add(set + " " + str2);
@@ -754,7 +663,6 @@ public class Assembler {
                     instr_bin.add(set);
                 }
                 continue;
-                
             }
             else if(str.equals("je")){
                 String str2 = scan.next();
@@ -780,7 +688,6 @@ public class Assembler {
                 if(labels.get(str2) == null){
                     labelNamesArr.add(str2);
                     labels.put(str2,-1);
-                    
                     set = instrucOpcode("je") + "000";
                     undefined.put(str2,count);
                     instr_bin.add(set + " " + str2);
@@ -791,10 +698,9 @@ public class Assembler {
                     instr_bin.add(set);
                 }
                 continue;
-
             }
             else if(str.equals("hlt")){
-                
+                hlt_enc = 1;
                 set = instrucOpcode("hlt") + "00000000000";
                 instr_bin.add(set);
                 //instr_bin.add(set);
@@ -807,24 +713,36 @@ public class Assembler {
                 Error_flag = true;
                 break;
             }
-            
-
         }
-        // String str7 = scan.next();
+        
+        /* 
+        hlt
+        .
+        .
+        . (256)
+        */
 
-        // if(!Error_flag && count<=256 && !str7.equals(null)){
-        //     System.out.println("ERROR: instruction present after hlt");
+        //--------
+        if(!Error_flag && count > 256 && hlt_enc != 1){
+            Error_flag = true;
+            System.out.print("At line " + (count));
+            System.out.println(" ERROR: no hlt instruction present");
+        }
+        //---------
+        //str = scan.next(); 
+        if(scan.hasNextLine() && !Error_flag) { 
+            Error_flag = true;
+            System.out.print("At line " + (count+1));
+            System.out.println(" ERROR: instruction should not be present after hlt");
+        }
+
+        // if(!Error_flag && count > 256){
         //     Error_flag = true;
+        //     System.out.println("ERROR: number of instructions exceeded 256 ");
+        //     System.out.println("and hlt instruction missing before or at line 256");
         // }
 
-        if(!Error_flag && count > 256){
-            Error_flag = true;
-            System.out.println("ERROR: number of instructions exceeded 256 ");
-            System.out.println("and hlt instruction missing before or at line 256");
-        }
-
         if(!Error_flag){
-
             //setting address no.s of variables
             for(String vars : vars_inorder){
                 labels.replace(vars, instr_bin.size() + vars_inorder.indexOf(vars));
@@ -835,14 +753,7 @@ public class Assembler {
             String comp_instr; //complete instruction
             if (incomp.size() != 0){
                 for(int item : incomp){
-                    //System.out.println(item);
-
-                    // separate at white space, the instruction in instr_bin[item] 
-                    //obtain (opcode + unusedbits) in one string and label name in another
-                    //obtain value of labelname from map
-                    //convert it to bin
-                    //rewrite instr_bin[item] 
-
+                    
                     incomp_instr = instr_bin.get(item);
                     arrOfStr = incomp_instr.split(" ",2);
                     //System.out.println(arrOfStr[1]);
@@ -853,19 +764,8 @@ public class Assembler {
                         Error_flag=true;
                         break;
                     }
-                    
-                    // for(String each : arrOfStr){
-                    //     System.out.println(each);
-                    // }
-                    
-                    // System.out.println(arrOfStr.length);
-                    // System.out.println(instr_bin.size());
-                    // System.out.println(labels.get(arrOfStr[1]));
-                    
                     comp_instr = arrOfStr[0] + Int_to_Bin(labels.get(arrOfStr[1]));
-                    //System.out.println(comp_instr);
-                    instr_bin.set(item,comp_instr);
-                        
+                    instr_bin.set(item,comp_instr);   
                 }
             }
             

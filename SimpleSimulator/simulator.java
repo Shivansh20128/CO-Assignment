@@ -1,0 +1,569 @@
+import java.util.HashMap;
+import java.util.Scanner;
+import java.lang.Math;
+import java.io.File;  
+import java.io.IOException;  
+import java.io.FileWriter;  
+import java.io.IOException;  
+
+
+public class simu { // gives what code is it and sends it respective fn
+    static Scanner scan = new Scanner(System.in);
+    static int ProgramCounter = 0;
+    static int cycle = 0;
+    static String x_cycles = "";
+    static String y_memAddr = ""; 
+    // Hashmaps
+    //contains codes of regs and their value as integer
+    //FINAL?
+    static final HashMap<String, Integer> regFile = new HashMap<String, Integer>();// Register File
+    //wont mem_addr as a 256 array be better?
+    static final HashMap<String, String> memAddr = new HashMap<String, String>();// Memory 
+    // string1-key= 8 bit addr/PC  string2-value= 16 bit instruction
+    // Flags
+    // overflow(V)=8 less than(L)=4 greater than(G)=2 Equal (E)=1
+    // should be .replace() instead of .put()
+    static void resetFlag() {
+        regFile.put("111", 0);
+    }
+
+    static void setV() {
+        regFile.put("111", 8);
+    }
+
+    static void setL() {
+        regFile.put("111", 4);
+    }
+
+    static void setG() {
+        regFile.put("111", 2);
+    }
+
+    static void setE() {
+        regFile.put("111", 1);
+    }
+
+    // decides what command the binary stands for
+    static void commandIns(String s) {// Excecution Engine
+        if (s.substring(0, 5).equals("00000")) {// add
+            // calls add fn // add fn has input as string//input is complete string
+            addc(s);
+        }
+        if (s.substring(0, 5).equals("00001")) {// sub
+            subc(s);
+        }
+        if (s.substring(0, 5).equals("00010")) {// mov imm
+            movic(s);
+        }
+        if (s.substring(0, 5).equals("00011")) {// mov reg
+            movrc(s);
+        }
+        if (s.substring(0, 5).equals("00100")) {
+            loadc(s);
+        }
+        if (s.substring(0, 5).equals("00101")) {
+            storec(s);
+        }
+        if (s.substring(0, 5).equals("00110")) {
+            mulc(s);
+        }
+        if (s.substring(0, 5).equals("00111")) {
+            divc(s);
+        }
+        if (s.substring(0, 5).equals("01000")) {
+            rightShift(s);
+        }
+        if (s.substring(0, 5).equals("01001")) {
+            leftShift(s);
+        }
+        if (s.substring(0, 5).equals("01010")) {
+            xor(s);
+        }
+        if (s.substring(0, 5).equals("01011")) {
+            or(s);
+        }
+        if (s.substring(0, 5).equals("01100")) {
+            and(s);
+        }
+        if (s.substring(0, 5).equals("01101")) {
+            not(s);
+        }
+        if (s.substring(0, 5).equals("01110")) {
+            cmp(s);
+        }
+        if (s.substring(0, 5).equals("01111")) {
+            jmp(s);
+        }
+        if (s.substring(0, 5).equals("10000")) {
+            jlt(s);
+        }
+        if (s.substring(0, 5).equals("10001")) {
+            jgt(s);
+        }
+        if (s.substring(0, 5).equals("10010")) {
+            je(s);
+        }
+    }
+
+//errors like; FLAGS being used with instructions other than mov, decode the bin
+    static void loadc(String s) {/// type D opc=5 reg=3 mem=8
+    //put reg code and value at a particular addr
+    //loads from memory into reg file
+        if(s.substring(5, 8).equals("111")){
+            System.out.print("At line " + ProgramCounter);
+            System.out.println(" ERROR: Illegal use of FLAGS register");
+        }
+        regFile.put(s.substring(5, 8), bin_to_int(memAddr.get(s.substring(8, 16)))); //variable
+        x_cycles = x_cycles + cycle + " ";
+        y_memAddr = y_memAddr + bin_to_int(s.substring(8, 16)) + " ";
+        resetFlag();
+        printcommand();
+    }
+
+    static void storec(String s) {
+        if(s.substring(5, 8).equals("111")){
+            System.out.print("At line " + ProgramCounter);
+            System.out.println(" ERROR: Illegal use of FLAGS reg");
+        }
+        memAddr.put(s.substring(8, 16), Int_to_Bin16bit(regFile.get(s.substring(5, 8))));
+        x_cycles = x_cycles + cycle + " ";
+        y_memAddr = y_memAddr + bin_to_int(s.substring(8, 16)) + " ";
+        resetFlag();
+        printcommand();
+    }
+
+    static int power(int m) {
+        int result = 1;
+        for (int i = 0; i < m; i++) {
+            result = result * 2;
+        }
+        return result;
+    }
+
+    static int bin_to_int(String s) {
+        int retnum = 0;
+        int count = 0;
+        for (int i = s.length() - 1; i >= 0; i--) {
+
+            int k = Integer.parseInt(s.substring(i, i + 1));
+            retnum = retnum + k * (power(count));
+            count++;
+        }
+        return retnum;
+    }
+
+    static void movic(String s) {
+        if(s.substring(5, 8).equals("111")){
+            System.out.print("At line " + ProgramCounter);
+            System.out.println(" ERROR: Illegal use of FLAGS register");
+        }
+    
+        regFile.put(s.substring(5, 8), bin_to_int(s.substring(8, 16)));
+        resetFlag();
+        printcommand();
+
+    }
+
+    static void movrc(String s) {
+        if(s.substring(10, 13).equals("111")){
+            System.out.print("At line " + ProgramCounter);
+            System.out.println(" ERROR: Illegal use of FLAGS register");
+        }
+        regFile.put(s.substring(10, 13), regFile.get(s.substring(13, 16)));
+        resetFlag();
+        printcommand();
+    }
+
+    static String Int_to_Bin8bit(int num) {
+        
+        String p = "";
+        int binary[] = new int[8];
+        int index = 0;
+        while (num > 0) {
+            binary[index++] = num % 2;
+            num = num / 2;
+        }
+        for (int i = index - 1; i >= 0; i--) {
+            p = p + Integer.toString(binary[i]);
+        }
+        for (int j = index; j <= 7; j++) {
+            p = "0" + p;
+        }
+        return p;
+    }
+
+    static String Int_to_Bin16bit(int num) {
+        String p = "";
+        int binary[] = new int[16];
+        int index = 0;
+        while (num > 0) {
+            binary[index++] = num % 2;
+            num = num / 2;
+        }
+        for (int i = index - 1; i >= 0; i--) {
+            p = p + Integer.toString(binary[i]);
+        }
+        for (int j = index; j <= 15; j++) {
+            p = "0" + p;
+        }
+        return p;
+    }
+
+    static void printcommand() {
+        String[] keyinorder = { "000", "001", "010", "011", "100", "101", "110", "111" };
+        System.out.print(Int_to_Bin8bit(ProgramCounter) + " ");
+        for (String ele : keyinorder) {
+            System.out.print(Int_to_Bin16bit(regFile.get(ele)) + " ");
+            if (ele.equals("111")) {
+                System.out.println();
+            }
+        }
+    }
+
+
+    static void addc(String s) {
+        if(s.substring(10, 13).equals("111") || s.substring(13, 16).equals("111")){
+            System.out.print("At line " + ProgramCounter);
+            System.out.println(" ERROR: Illegal use of FLAGS register");
+        }
+
+        int r2 = regFile.get(s.substring(10, 13));
+        int r3 = regFile.get(s.substring(13, 16));
+        int r1 = r2 + r3;
+        if (r1 < 65536) {
+            regFile.put(s.substring(7, 10), r1);
+            resetFlag();
+        } else {
+            regFile.put(s.substring(7, 10), 0);
+            setV();
+        }
+        printcommand();
+
+    }
+
+    static void subc(String s) {
+        if(s.substring(10, 13).equals("111") || s.substring(13, 16).equals("111")){
+            System.out.print("At line " + ProgramCounter);
+            System.out.println(" ERROR: Illegal use of FLAGS register");
+        }
+        
+        int r2 = regFile.get(s.substring(10, 13));
+        int r3 = regFile.get(s.substring(13, 16));
+        int r1 = r2 - r3;
+        if (r1 >= 0 && r1 <= 65535) {
+            r1 = regFile.put(s.substring(7, 10), r1);
+            resetFlag();
+        } else {
+            regFile.put(s.substring(7, 10), 0);
+            setV();
+        }
+        printcommand();
+        resetFlag();
+
+    }
+    static void mulc(String s) {
+        if(s.substring(10, 13).equals("111") || s.substring(13, 16).equals("111")){
+            System.out.print("At line " + ProgramCounter);
+            System.out.println(" ERROR: Illegal use of FLAGS register");
+        }
+
+        int r2 = regFile.get(s.substring(10, 13));
+        int r3 = regFile.get(s.substring(13, 16));
+        int r1 = r2 * r3;
+        if (r1 >= 0 && r1 <= 65535) {
+            regFile.put(s.substring(7, 10), r1);
+            resetFlag();
+        } else {
+            regFile.put(s.substring(7, 10), 0);
+            setV();
+        }
+        printcommand();
+        resetFlag();
+    }
+    static void divc(String s) {
+        if(s.substring(10, 13).equals("111") || s.substring(13, 16).equals("111")){
+            System.out.print("At line " + ProgramCounter);
+            System.out.println(" ERROR: Illegal use of FLAGS register");
+        }
+        int r3 = regFile.get(s.substring(10, 13));
+        int r4 = regFile.get(s.substring(13, 16));
+        int r0 = r3 / r4;
+        int r1 = r3 % r4;
+        if (r1 >= 0 && r1 <= 65535) {
+            regFile.put("000", r0);
+            regFile.put("001", r1);
+            resetFlag();
+        } else {
+            regFile.put("000", 0);
+            regFile.put("001", 0);
+            setV();
+        }
+        printcommand();
+
+    }
+    static void rightShift(String s) {
+        if(s.substring(5, 8).equals("111")){
+            System.out.print("At line " + ProgramCounter);
+            System.out.println(" ERROR: Illegal use of FLAGS register");
+        }
+        int r3 = regFile.get(s.substring(5, 8));
+        int r4 = bin_to_int(s.substring(8, 16));
+        r3 = r3 * (int)(Math.pow(2,r4));
+        if (r3 >= 0 && r3 <= 65535) {
+            regFile.put(s.substring(5,8),r3);
+            resetFlag();
+        } else {
+            regFile.put(s.substring(5,8), 0);
+            setV();
+        }
+        
+        printcommand();
+        resetFlag();
+
+    }
+    static void leftShift(String s) {
+        if(s.substring(5, 8).equals("111")){
+            System.out.print("At line " + ProgramCounter);
+            System.out.println(" ERROR: Illegal use of FLAGS register");
+        }
+        int r3 = regFile.get(s.substring(5, 8));
+        int r4 = bin_to_int(s.substring(8, 16));
+        r3 = r3 / (int)Math.pow(2,r4);
+        if (r3 >= 0 && r3 <= 65535) {
+            regFile.put(s.substring(5,8),r3);
+            resetFlag();
+        } else {
+            regFile.put(s.substring(5,8), 0);
+            setV();
+        }
+        printcommand();
+        resetFlag();
+    }
+
+    static void xor(String s) {
+        if(s.substring(10, 13).equals("111") || s.substring(13, 16).equals("111")){
+            
+            System.out.print("At line " + ProgramCounter);
+            System.out.println(" ERROR: Illegal use of FLAGS register");
+        }
+        int r2 = regFile.get(s.substring(10, 13));
+        int r3 = regFile.get(s.substring(13, 16));
+        int r1 = r2 ^ r3;  //?
+        if (r1 >= 0 && r1 <= 65535) {
+            regFile.put(s.substring(7, 10), r1);
+            resetFlag();
+        } else {
+            regFile.put(s.substring(7, 10), 0);
+            setV();
+        }
+        printcommand();
+        resetFlag();
+    }
+    static void or(String s) {
+        if(s.substring(10, 13).equals("111") || s.substring(13, 16).equals("111") || s.substring(7, 10).equals("111")){
+            System.out.print("At line " + ProgramCounter);
+            System.out.println(" ERROR: Illegal use of FLAGS register");
+        }
+        int r2 = regFile.get(s.substring(10, 13));
+        int r3 = regFile.get(s.substring(13, 16));
+        int r1 = r2 | r3;
+        if (r1 >= 0 && r1 <= 65535) {
+            regFile.put(s.substring(7, 10), r1);
+            resetFlag();
+        } else {
+            regFile.put(s.substring(7, 10), 0);
+            setV();
+        }
+        printcommand();
+        resetFlag();
+    }
+    static String func(String str){
+        String temp="";
+        for(int i=0;i<str.length();i++){
+            if(str.substring(i,i+1).equals("0")){
+                temp=temp+"1";
+            }else if(str.substring(i,i+1).equals("1")){
+                temp=temp+"0";
+            }
+        }
+        return temp;
+    }
+    static void not(String s) {
+        if(s.substring(10, 13).equals("111") || s.substring(13, 16).equals("111")){
+            System.out.print("At line " + ProgramCounter);
+            System.out.println(" ERROR: Illegal use of FLAGS register");
+        }
+        int r2 = regFile.get(s.substring(13, 16));
+        
+        int r1 = bin_to_int(func(Int_to_Bin16bit(r2)));
+        
+        regFile.put(s.substring(10, 13), r1);
+        resetFlag();
+        
+        printcommand();
+        resetFlag();
+        
+    }
+    static void and(String s) {
+        if(s.substring(10, 13).equals("111") || s.substring(13, 16).equals("111") || s.substring(7, 10).equals("111")){
+            System.out.print("At line " + ProgramCounter);
+            System.out.println(" ERROR: Illegal use of FLAGS register");
+        }
+        int r2 = regFile.get(s.substring(10, 13));
+        int r3 = regFile.get(s.substring(13, 16));
+        int r1 = r2 & r3;
+        if (r1 >= 0 && r1 <= 65535) {
+            regFile.put(s.substring(7, 10), r1);
+            resetFlag();
+        } else {
+            regFile.put(s.substring(7, 10), 0);
+            setV();
+        }
+        printcommand();
+        resetFlag();
+
+    }
+
+    static void cmp(String s) {
+        if(s.substring(10, 13).equals("111") || s.substring(13, 16).equals("111")){
+            System.out.print("At line " + ProgramCounter);
+            System.out.println(" ERROR: Illegal use of FLAGS register");
+        }
+        int r2 = regFile.get(s.substring(10, 13));
+        int r3 = regFile.get(s.substring(13, 16));
+        if(r2>r3){
+            setG();
+        } 
+        else if(r2==r3){
+            setE();
+        }
+        else if(r2<r3){
+            setL();
+        }
+        printcommand();
+    }
+
+    static void jmp(String s) {
+        String label = s.substring(8, 16);
+        x_cycles = x_cycles + cycle + " ";
+        y_memAddr = y_memAddr + ProgramCounter + " ";
+        cycle++;
+        resetFlag();
+        printcommand();
+        ProgramCounter = bin_to_int(label); 
+        commandIns(memAddr.get(label));
+    }
+
+    static void jlt(String s) {
+        if(regFile.get("111")==4){
+            resetFlag();
+            String label = s.substring(8, 16);
+            x_cycles = x_cycles + cycle + " ";
+            y_memAddr = y_memAddr + ProgramCounter + " ";
+            cycle++;
+            printcommand();
+            ProgramCounter = bin_to_int(label); 
+            commandIns(memAddr.get(label));
+        }
+        else{
+            resetFlag();
+            printcommand();
+        }
+    }
+    static void jgt(String s) {
+        if(regFile.get("111")==2){
+            String label = s.substring(8, 16);
+            resetFlag();
+            x_cycles = x_cycles + cycle + " ";
+            y_memAddr = y_memAddr + ProgramCounter + " ";
+            cycle++;
+            printcommand();
+            ProgramCounter = bin_to_int(label); 
+            commandIns(memAddr.get(label)); 
+        }
+        else{
+            resetFlag();
+            printcommand();
+        }
+    }
+    static void je(String s) {
+        if(regFile.get("111")==1){
+            String label = s.substring(8, 16);
+            resetFlag();
+            x_cycles = x_cycles + cycle + " ";
+            y_memAddr = y_memAddr + ProgramCounter + " ";
+            cycle++;
+            printcommand();
+            ProgramCounter = bin_to_int(label); 
+            commandIns(memAddr.get(label));
+        }
+        else{
+            resetFlag();
+            printcommand();
+        }
+    }
+
+
+    public static void main(String[] args) {
+        regFile.put("000", 0);
+        regFile.put("001", 0);
+        regFile.put("010", 0);
+        regFile.put("011", 0);
+        regFile.put("100", 0);
+        regFile.put("101", 0);
+        regFile.put("110", 0);
+        regFile.put("111", 0);
+
+        for (int i = 0; i < 256; i++) {
+            memAddr.put(Int_to_Bin8bit(i), "0000000000000000");
+        }
+
+        String p;
+        int count = 0;
+        while (scan.hasNextLine()) {
+            p = scan.nextLine();
+            memAddr.put(Int_to_Bin8bit(count), p);
+            count++;
+        }
+        while (!(memAddr.get(Int_to_Bin8bit(ProgramCounter))).equals("1001100000000000")) {
+            commandIns(memAddr.get(Int_to_Bin8bit(ProgramCounter)));
+            x_cycles = x_cycles + cycle + " ";
+            y_memAddr = y_memAddr + ProgramCounter + " ";
+            cycle++;
+            ProgramCounter++;
+        }
+        if ((memAddr.get(Int_to_Bin8bit(ProgramCounter))).equals("1001100000000000")) {
+            x_cycles = x_cycles + cycle + " ";
+            y_memAddr = y_memAddr + ProgramCounter + " ";
+            printcommand();
+        }
+
+        for (int i = 0; i < 256; i++) {
+            System.out.println(memAddr.get(Int_to_Bin8bit(i)));
+        }
+
+
+        try {
+            File myObj = new File("ScatterPlot.txt");
+            if (myObj.createNewFile()) {
+            }
+            else {
+            }
+        }
+        catch (IOException e) {
+            System.out.println("An error occurred.");
+            e.printStackTrace();
+        }
+
+        try {
+            FileWriter myWriter = new FileWriter("ScatterPlot.txt");
+            myWriter.write(x_cycles + "\n" + y_memAddr);
+            myWriter.close();
+        }
+        catch (IOException e) {
+            System.out.println("An error occurred.");
+            e.printStackTrace();
+        }
+
+    }
+}
